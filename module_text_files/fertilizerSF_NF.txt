@@ -1,0 +1,73 @@
+Fertilizer: SF-NF
+
+$`29`
+[1] "chthonomonadetes"      "acidithiobacillia"     "thermodesulfobacteria"
+
+$`18`
+[1] "chloroflexia"    "holophagae"      "deferribacteres" "nitrospinia"    
+
+$`2`
+[1] "actinomycetia" "cyanobacteria" "oligoflexia"   "fusobacteriia"
+
+$`11`
+[1] "sphingobacteriia" "acidimicrobiia"   "caldilineae"     
+
+$`22`
+[1] "nitrospira"    "cloacimonetes"
+
+$`15`
+[1] "flavobacteriia" "gloeobacteria" 
+
+$`3`
+[1] "bacilli"        "thermomicrobia"
+
+$`12`
+[1] "spartobacteria"   "gemmatimonadetes" "ignavibacteria"   "thermoflexia"    
+
+$`7`
+[1] "opitutae"     "dictyoglomia"
+
+$`30`
+[1] "ktedonobacteria" "chrysiogenetes"  "coriobacteriia" 
+
+$`31`
+[1] "thermoanaerobaculia" "florideophyceae"    
+
+$`10`
+[1] "chitinophagia" "clostridia"    "synergistia"  
+
+$`27`
+[1] "thermotogae"              "bacteroidetes"            "thermodesulfovibrionia"   "candidatus tectomicrobia" "armatimonadia"           
+
+$`17`
+[1] "planctomycetia" "ardenticatenia"
+
+$`9`
+[1] "deltaproteobacteria" "tissierellia"        "chlorobia"          
+
+$`26`
+[1] "bacteroidia"           "epsilonproteobacteria"
+
+$`1`
+[1] "alphaproteobacteria" "chlamydiia"          "negativicutes"      
+
+$`19`
+[1] "firmicutes"      "nitriliruptoria"
+
+$`4`
+[1] "betaproteobacteria" "spirochaetia"       "caldisericia"      
+
+$`28`
+[1] "endomicrobia"        "thermolithobacteria" "methylacidiphilae"  
+
+$`5`
+[1] "thermoleophilia" "deinococci"     
+
+$`8`
+[1] "blastocatellia"      "gammaproteobacteria"
+
+$`25`
+[1] "candidatus brocadiae" "mollicutes"          
+
+$`13`
+[1] "acidobacteriia"   "erysipelotrichia"

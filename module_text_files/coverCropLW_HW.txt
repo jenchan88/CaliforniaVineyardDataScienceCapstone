@@ -1,0 +1,70 @@
+Cover Crop: LW-HW
+
+$`26`
+[1] "thermodesulfovibrionia" "thermolithobacteria"    "synergistia"            "gloeobacteria"         
+
+$`15`
+[1] "phycisphaerae"       "thermoanaerobaculia"
+
+$`22`
+[1] "nitriliruptoria" "fusobacteriia"   "dehalococcoidia" "chlamydiia"     
+
+$`9`
+[1] "chitinophagia" "nitrospira"   
+
+$`2`
+[1] "actinomycetia" "armatimonadia" "thermoflexia"  "lentisphaeria" "nitrospinia"  
+
+$`10`
+[1] "spartobacteria" "thermotogae"    "holophagae"     "chrysiogenetes" "cloacimonetes" 
+
+$`11`
+[1] "gemmatimonadetes"         "flavobacteriia"           "candidatus tectomicrobia"
+
+$`24`
+[1] "ignavibacteria"        "thermodesulfobacteria" "deferribacteres"      
+
+$`19`
+[1] "caldilineae"    "bacteroidia"    "coriobacteriia"
+
+$`31`
+[1] "fibrobacteria" "deinococci"   
+
+$`7`
+[1] "blastocatellia"    "acidithiobacillia"
+
+$`8`
+[1] "deltaproteobacteria" "sphingobacteriia"   
+
+$`23`
+[1] "candidatus brocadiae" "caldisericia"        
+
+$`14`
+[1] "verrucomicrobiae" "bacteroidetes"   
+
+$`20`
+[1] "fimbriimonadia"  "florideophyceae"
+
+$`5`
+[1] "thermoleophilia"       "gammaproteobacteria"   "epsilonproteobacteria"
+
+$`4`
+[1] "betaproteobacteria" "mollicutes"        
+
+$`1`
+[1] "alphaproteobacteria" "cyanobacteria"       "chloroflexia"        "aquificae"           "dictyoglomia"       
+
+$`28`
+[1] "erysipelotrichia"  "hydrogenophilalia"
+
+$`6`
+[1] "opitutae"        "acidobacteriia"  "ktedonobacteria" "chlorobia"      
+
+$`13`
+[1] "acidimicrobiia"    "methylacidiphilae"
+
+$`16`
+[1] "clostridia"   "spirochaetia"
+
+$`3`
+[1] "bacilli"        "rubrobacteria"  "planctomycetia" "firmicutes"    

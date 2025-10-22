@@ -1,0 +1,70 @@
+Cover Crop: HW-LW
+
+$`9`
+[1] "sphingobacteriia" "fusobacteriia"    "chrysiogenetes"  
+
+$`11`
+[1] "gemmatimonadetes"     "candidatus brocadiae"
+
+$`10`
+[1] "spartobacteria"      "oligoflexia"         "thermoanaerobaculia" "mollicutes"          "thermoflexia"        "deinococci"         
+
+$`2`
+[1] "actinomycetia"       "bacilli"             "blastocatellia"      "gammaproteobacteria" "deferribacteres"     "dictyoglomia"       
+
+$`15`
+[1] "acidimicrobiia" "bacteroidia"   
+
+$`6`
+[1] "opitutae"       "planctomycetia" "fimbriimonadia" "thermomicrobia" "armatimonadia" 
+
+$`8`
+[1] "chitinophagia"   "ktedonobacteria"
+
+$`16`
+[1] "cyanobacteria" "synergistia"  
+
+$`20`
+[1] "ignavibacteria"   "erysipelotrichia"
+
+$`14`
+[1] "flavobacteriia"         "nitrospira"             "thermodesulfovibrionia" "dehalococcoidia"       
+
+$`24`
+[1] "thermolithobacteria"   "epsilonproteobacteria" "ardenticatenia"        "cloacimonetes"        
+
+$`5`
+[1] "rubrobacteria" "caldilineae"   "endomicrobia" 
+
+$`4`
+[1] "thermoleophilia"   "holophagae"        "methylacidiphilae"
+
+$`19`
+[1] "anaerolineae"      "acidithiobacillia"
+
+$`12`
+[1] "acidobacteriia"   "verrucomicrobiae" "spirochaetia"    
+
+$`25`
+[1] "chlamydiia"   "caldisericia"
+
+$`1`
+[1] "alphaproteobacteria" "phycisphaerae"      
+
+$`17`
+[1] "chloroflexia"  "clostridia"    "fibrobacteria"
+
+$`21`
+[1] "bacteroidetes"            "candidatus tectomicrobia" "hydrogenophilalia"        "florideophyceae"         
+
+$`18`
+[1] "saprospiria" "nitrospinia"
+
+$`3`
+[1] "betaproteobacteria" "firmicutes"         "nitriliruptoria"   
+
+$`28`
+[1] "thermodesulfobacteria" "aquificae"            
+
+$`7`
+[1] "deltaproteobacteria" "thermotogae"         "chlorobia"          

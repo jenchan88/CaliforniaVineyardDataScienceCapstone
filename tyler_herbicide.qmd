@@ -1,0 +1,268 @@
+---
+title: "Herbicide"
+format: html
+editor: source
+---
+
+# Read in Data
+
+```{r}
+library(here)
+dat_cl <- read.csv(here("rarified_counts_by_Class.csv"))
+```
+
+## Get Correlations
+
+### Herbicide
+
+```{r}
+cl_Herbicide <- get_correlation_matrix(dat_cl, "Class", "H")
+cl_Herbicide[is.na(cl_Herbicide)] <- 0
+
+get_correlation_heatmap(cl_Herbicide, 10, 15)
+
+# # remove rows/columns with NAs
+# rows_with_all_na <- apply(cl_Herbicide, 1, function(row) all(is.na(row) | row == 1))
+# 
+# cl_H_clean <- cl_Herbicide[!rows_with_all_na, !rows_with_all_na]
+
+
+```
+
+### Non-Herbicide
+
+```{r}
+cl_NonHerbicide <- get_correlation_matrix(dat_cl, "Class", "NH")
+cl_NonHerbicide[is.na(cl_Herbicide)] <- 0
+
+get_correlation_heatmap(cl_NonHerbicide, 10, 15)
+
+# # remove rows/columns with NAs
+# rows_with_all_na <- apply(cl_NonHerbicide, 1, function(row) all(is.na(row) | row == 1))
+# 
+# cl_NH_clean <- cl_NonHerbicide[!rows_with_all_na, !rows_with_all_na]
+```
+
+```{r}
+diffs <- get_correlation_difference_matrix(cl_Herbicide, cl_NonHerbicide)
+```
+
+```{r}
+get_correlation_heatmap(diffs, 10,15)
+```
+
+
+
+## Distance Matrix
+
+```{r}
+#| warning: FALSE
+dist <- get_correlation_distance_matrix(cl_Herbicide, cl_NonHerbicide)
+```
+
+## Pairwise Distances
+
+```{r}
+dist_vector <- dist[upper.tri(dist)]
+
+# 10 smallest distances
+sorted_indices <- order(dist_vector)[1:10]
+
+# Get row and column names for the smallest distances
+rows <- row(dist)[upper.tri(dist)][sorted_indices]
+cols <- col(dist)[upper.tri(dist)][sorted_indices]
+distances <- dist_vector[sorted_indices]
+
+result <- data.frame(Row = rownames(dist)[rows], 
+                     Column = colnames(dist)[cols], 
+                     Distance = distances)
+
+print(result)
+```
+
+#### Chloroflexia vs Ktedonobacteria
+
+### Counts Over Time
+
+```{r}
+plot_counts_over_time(dat_cl, Class, "chloroflexia", "ktedonobacteria", "Herbicide")
+```
+
+```{r}
+plot_counts_over_time(dat_cl, Class, "candidatus brocadiae", "dehalococcoidia", "Herbicide")
+```
+
+```{r}
+plot_counts_over_time(dat_cl, Class, "sphingobacteriia", "spartobacteria", "Herbicide")
+```
+
+```{r}
+plot_counts_over_time(dat_cl, Class, "thermomicrobia", "sphingobacteriia", "Herbicide")
+```
+
+## KMeans
+
+### Tune k
+
+```{r}
+library(cluster)
+# Handle Inf and NA values
+dist[is.infinite(dist) | is.na(dist)] <- max(dist[is.finite(dist)], na.rm = TRUE)
+
+k_values <- 1:70
+wcss <- numeric(length(k_values))
+
+# Perform k-means clustering for each k
+for (k in k_values) {
+  set.seed(123)
+  kmeans_result <- kmeans(dist, centers = k)
+  wcss[k] <- kmeans_result$tot.withinss
+}
+
+# Plot the elbow curve
+plot(k_values, wcss, type = "b", pch = 19, frame = FALSE, 
+     xlab = "Number of Clusters (k)", 
+     ylab = "Within-Cluster Sum of Squares (WCSS)",
+     main = "Elbow Method for Optimal k")
+```
+
+### K-means
+
+```{r}
+num_clusters <- 10  # Adjust
+kmeans_result <- kmeans(dist, centers = num_clusters)
+
+clusters <- data.frame(kmeans_result$cluster)
+```
+
+```{r}
+cluster_1 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 1]
+cluster_2 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 2]
+cluster_3 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 3]
+cluster_4 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 4]
+cluster_5 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 5]
+cluster_6 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 6]
+cluster_8 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 8]
+print(cluster_2)
+```
+
+## Heirarchical Clustering
+
+```{r}
+library(factoextra)
+library(cluster)
+library(ggdendro)
+```
+
+```{r}
+diffs <- get_correlation_difference_matrix(cl_Herbicide, cl_NonHerbicide)
+diffs[is.na(diffs)] = 0
+hc <- hclust(as.dist(dist), method="average")
+ggdendrogram(hc, rotate = TRUE)
+```
+
+## Z - Score Correlation Matrix
+
+```{r}
+corrs_z <- get_correlation_diff_z(cl_Herbicide, cl_NonHerbicide)
+
+corrs_z[is.na(corrs_z)] = 0
+
+max(corrs_z)
+```
+
+## p-value Matrix
+
+```{r}
+p_vals <- get_correlation_diff_pvals(cl_Herbicide, cl_NonHerbicide)
+```
+
+## Heirarchical Clustering P-val Distance
+
+```{r}
+p_vals[is.na(p_vals)] = 0
+hc <- hclust(as.dist(p_vals), method="average")
+ggdendrogram(hc, rotate = TRUE)
+```
+
+### Heirarchical Clustering Splitting at 0.1
+
+```{r}
+clusters_0.1 <- cutree(hc, h = 0.1)
+cluster_list <- split(names(clusters_0.1), clusters_0.1)
+cluster_list
+```
+
+
+
+### Heirarchical Clustering Splitting at 0.05
+
+```{r}
+clusters_0.05 <- cutree(hc, h = 0.05)
+cluster_list_0.05 <- split(names(clusters_0.05), clusters_0.05)
+cluster_list_0.05
+```
+
+```{r}
+plot_counts_over_time(dat_cl, Class, "thermoanaerobaculia", "acidithiobacillia" , "Herbicide")
+plot_std_counts_over_time(dat_cl, Class, c("thermoanaerobaculia", "acidithiobacillia") , "Herbicide")
+plot_std_counts_colored_year(dat_cl, Class, c("thermoanaerobaculia", "acidithiobacillia") , "Herbicide")
+plot_std_counts_colored_season(dat_cl, Class, c("thermoanaerobaculia", "acidithiobacillia") , "Herbicide")
+```
+
+```{r}
+plot_std_counts_colored_year(dat_cl, Class, "bacteroidetes",    "ktedonobacteria", "Herbicide")
+
+```
+
+
+```{r}
+# K-Means
+library(cluster)
+
+k_values <- 1:70
+wcss <- numeric(length(k_values))
+
+# Perform k-means clustering for each k
+for (k in k_values) {
+  set.seed(123)
+  kmeans_result <- kmeans(p_vals, centers = k)
+  wcss[k] <- kmeans_result$tot.withinss
+}
+
+# Plot the elbow curve
+plot(k_values, wcss, type = "b", pch = 19, frame = FALSE, 
+     xlab = "Number of Clusters (k)", 
+     ylab = "Within-Cluster Sum of Squares (WCSS)",
+     main = "Elbow Method for Optimal k")
+```
+
+```{r}
+num_clusters <- 30  # Adjust
+kmeans_result <- kmeans(p_vals, centers = num_clusters)
+
+clusters <- data.frame(kmeans_result$cluster)
+```
+
+```{r}
+cluster_1 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 1]
+cluster_2 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 2]
+cluster_3 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 3]
+cluster_4 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 4]
+cluster_5 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 5]
+cluster_6 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 6]
+cluster_8 <- rownames(clusters)[clusters[,"kmeans_result.cluster"] == 8]
+print(cluster_1)
+```
+
+```{r}
+plot_counts_over_time(dat_cl, Class, "ignavibacteria", "thermotogae" , "Herbicide")
+plot_std_counts_over_time(dat_cl, Class, "ignavibacteria", "thermotogae" , "Herbicide")
+```
+
+```{r}
+uv_df <- corr_uv_df(dat_cl, Class, "spartobacteria", "bacteroidetes", "Herbicide", "H", "NH")
+
+plot_uivi(uv_df, c("spartobacteria", "bacteroidetes"))
+```
+

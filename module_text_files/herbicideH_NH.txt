@@ -1,0 +1,81 @@
+Herbicide: H-NH
+
+$`1`
+ [1] "alphaproteobacteria"         "cytophagia"                  "planctomycetia"             
+ [4] "phycisphaerae"               "saprospiria"                 "caldilineae"                
+ [7] "erysipelotrichia"            "chthonomonadetes"            "tissierellia"               
+[10] "thermolithobacteria"         "synergistia"                 "fibrobacteria"              
+[13] "candidatus saccharibacteria" "thermodesulfobacteria"       "lentisphaeria"              
+
+$`2`
+[1] "actinomycetia"  "ignavibacteria"
+
+$`3`
+[1] "bacilli"             "deltaproteobacteria" "chlorobia"          
+
+$`4`
+[1] "betaproteobacteria" "chitinophagia"      "nitrospinia"       
+
+$`5`
+[1] "thermoleophilia" "firmicutes"      "nitriliruptoria"
+
+$`6`
+[1] "rubrobacteria"   "deferribacteres"
+
+$`7`
+[1] "opitutae"   "mollicutes"
+
+$`8`
+[1] "blastocatellia"    "methylacidiphilae"
+
+$`9`
+[1] "gammaproteobacteria" "negativicutes"       "ardenticatenia"     
+
+$`10`
+[1] "sphingobacteriia" "spartobacteria"   "oligoflexia"      "bacteroidetes"    "ktedonobacteria" 
+
+$`11`
+[1] "gemmatimonadetes" "flavobacteriia"   "bacteroidia"     
+
+$`12`
+[1] "acidobacteriia" "thermoflexia"  
+
+$`13`
+[1] "acidimicrobiia"      "thermoanaerobaculia" "acidithiobacillia"  
+
+$`16`
+[1] "chloroflexia"   "thermomicrobia" "fusobacteriia" 
+
+$`17`
+[1] "clostridia" "aquificae" 
+
+$`18`
+[1] "nitrospira" "chlamydiia"
+
+$`19`
+[1] "anaerolineae"  "armatimonadia"
+
+$`20`
+[1] "fimbriimonadia" "deinococci"     "cloacimonetes" 
+
+$`21`
+[1] "candidatus brocadiae" "coriobacteriia"      
+
+$`22`
+[1] "thermotogae"    "chrysiogenetes"
+
+$`23`
+[1] "thermodesulfovibrionia" "florideophyceae"       
+
+$`24`
+[1] "candidatus tectomicrobia" "dehalococcoidia"          "gloeobacteria"           
+
+$`25`
+[1] "endomicrobia" "holophagae"  
+
+$`26`
+[1] "spirochaetia" "caldisericia"
+
+$`27`
+[1] "epsilonproteobacteria" "hydrogenophilalia"    
+

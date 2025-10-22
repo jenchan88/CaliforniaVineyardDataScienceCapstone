@@ -1,0 +1,136 @@
+---
+title: "Treatment/Species counts"
+format: html
+---
+```{r}
+library(here)
+library(tidyverse)
+library(paletteer)
+library(broom)
+library(vegan)
+```
+
+```{r}
+# Read in rarified species data
+dat_spec <- read.csv(here("rarified_counts_by_Species (1).csv"))
+
+head(dat_spec, n=5)
+```
+## Non-Herbicide
+```{r}
+spec_cb_trt_NH <- dat_spec |>
+  filter(Treatment == "NH") |>
+  select(Species, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(spec_cb_trt_NH)
+```
+
+```{r}
+species <- spec_cb_trt_NH$Species
+use_NH <- spec_cb_trt_NH |>
+  select(-Species)
+
+filtered_NH <- use_NH[, apply(use_NH, 2, sd) != 0]
+
+# Compute the correlation matrix if no constant species remain
+correlation_matrix_NH <- cor(t(filtered_NH))
+```
+```{r}
+colnames(correlation_matrix_NH) <- species
+rownames(correlation_matrix_NH) <- species
+
+# Find the highest and lowest correlation values
+max_corr_value_NH <- max(correlation_matrix_NH, na.rm = TRUE)
+min_corr_value_NH <- min(correlation_matrix_NH, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+max_loc_NH <- which(correlation_matrix_NH == max_corr_value_NH, arr.ind = TRUE)
+min_loc_NH <- which(correlation_matrix_NH == min_corr_value_NH, arr.ind = TRUE)
+
+max_loc_NH <- max_loc_NH[max_loc_NH[, 1] != max_loc_NH[, 2], ]
+
+cat(species[3501], " and ", species[1652])
+```
+
+```{r}
+min_corr_value_NH
+```
+
+```{r}
+NH_heatmap <- correlation_matrix_NH[25:30, 25:30]
+NH_heatmap[is.na(NH_heatmap)] <- 0
+library(reshape2)
+
+NH_heatmap_long <- melt(NH_heatmap)
+
+ggplot(NH_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+
+
+```
+
+## Herbicide
+```{r}
+spec_cb_trt_H <- dat_spec |>
+  filter(Treatment == "H") |>
+  select(Species, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(spec_cb_trt_H)
+```
+
+```{r}
+species <- spec_cb_trt_H$Species
+use_H <- spec_cb_trt_H |>
+  select(-Species)
+
+filtered_H <- use_H[, apply(use_NH, 2, sd) != 0]
+
+correlation_matrix_H <- cor(t(filtered_H))
+```
+```{r}
+colnames(correlation_matrix_H) <- species
+rownames(correlation_matrix_H) <- species
+
+# Find the highest and lowest correlation values
+max_corr_value_H <- max(correlation_matrix_H, na.rm = TRUE)
+min_corr_value_H <- min(correlation_matrix_H, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+max_loc_H <- which(correlation_matrix_H == max_corr_value_H, arr.ind = TRUE)
+min_loc_H <- which(correlation_matrix_H == min_corr_value_H, arr.ind = TRUE)
+
+max_loc_H <- max_loc_H[max_loc_H[, 1] != max_loc_H[, 2], ]
+```
+
+```{r}
+min_corr_value_H
+```
+
+```{r}
+H_heatmap <- correlation_matrix_H[25:30, 25:30]
+H_heatmap[is.na(H_heatmap)] <- 0
+library(reshape2)
+
+H_heatmap_long <- melt(H_heatmap)
+
+ggplot(H_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+
+
+```

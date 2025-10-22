@@ -1,0 +1,76 @@
+Cover Crop: HW-NCC
+
+$`20`
+[1] "firmicutes"    "gloeobacteria"
+
+$`14`
+[1] "cytophagia" "deinococci"
+
+$`21`
+[1] "clostridia"        "anaerolineae"      "acidithiobacillia" "coriobacteriia"   
+
+$`5`
+[1] "thermoleophilia"   "chlamydiia"        "methylacidiphilae"
+
+$`13`
+[1] "acidobacteriia" "bacteroidetes"  "endomicrobia"  
+
+$`9`
+[1] "gammaproteobacteria"         "saprospiria"                 "caldilineae"                 "candidatus saccharibacteria"
+[5] "aquificae"                  
+
+$`4`
+[1] "betaproteobacteria"       "deltaproteobacteria"      "candidatus tectomicrobia" "chlorobia"                "florideophyceae"         
+[6] "nitrospinia"             
+
+$`17`
+[1] "verrucomicrobiae" "negativicutes"   
+
+$`7`
+[1] "opitutae"       "ignavibacteria"
+
+$`2`
+[1] "actinomycetia" "bacteroidia"   "synergistia"  
+
+$`19`
+[1] "chloroflexia"          "thermodesulfobacteria"
+
+$`22`
+[1] "fimbriimonadia" "thermotogae"   
+
+$`29`
+[1] "spirochaetia"   "chrysiogenetes"
+
+$`16`
+[1] "acidimicrobiia"         "thermodesulfovibrionia" "fusobacteriia"          "cloacimonetes"         
+
+$`15`
+[1] "flavobacteriia"  "cyanobacteria"   "ktedonobacteria"
+
+$`10`
+[1] "chitinophagia"  "ardenticatenia"
+
+$`12`
+[1] "gemmatimonadetes"    "phycisphaerae"       "thermolithobacteria"
+
+$`11`
+[1] "spartobacteria" "mollicutes"    
+
+$`27`
+[1] "thermoanaerobaculia"   "epsilonproteobacteria" "lentisphaeria"         "caldisericia"         
+
+$`3`
+[1] "bacilli"              "sphingobacteriia"     "candidatus brocadiae" "erysipelotrichia"     "dehalococcoidia"     
+[6] "thermoflexia"        
+
+$`31`
+[1] "holophagae"   "dictyoglomia"
+
+$`8`
+[1] "blastocatellia" "nitrospira"    
+
+$`30`
+[1] "fibrobacteria" "armatimonadia"
+
+$`6`
+[1] "rubrobacteria"   "deferribacteres"

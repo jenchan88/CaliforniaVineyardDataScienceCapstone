@@ -1,0 +1,592 @@
+---
+title: "Helper Functions"
+format: html
+editor: source
+---
+
+```{r}
+library(here)
+library(tidyverse)
+library(paletteer)
+library(broom)
+library(vegan)
+```
+
+# Getting Correlations Function
+
+```{r}
+get_correlation_matrix <- function(data, taxa, treatment){
+  
+  cb_trt <- data |>
+    filter(Treatment == treatment) |>
+    select(all_of(taxa), Sample_ID, Count) |>
+    pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+  
+  taxa_labels <- cb_trt[[taxa]]
+  
+  
+  use <- cb_trt |>
+    select(-Class)
+  
+  filtered <- use[, apply(use, 2, sd) != 0]
+  
+  # Compute the correlation matrix if no constant species remain
+  correlation_matrix <- cor(t(filtered))
+  
+  colnames(correlation_matrix) <- taxa_labels
+  rownames(correlation_matrix) <- taxa_labels
+  
+  return(correlation_matrix)
+}
+```
+
+# Getting Heatmap
+
+```{r}
+get_correlation_heatmap <- function(matrix, lower_lim, upper_lim){
+  heatmap <- matrix[lower_lim:upper_lim, lower_lim:upper_lim]
+  heatmap[is.na(heatmap)] <- 0
+  library(reshape2)
+  
+  heatmap_long <- melt(heatmap)
+  
+  ggplot(heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+    geom_tile() +
+    scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+    xlab("") + 
+    ylab("") +
+    scale_y_discrete(limits=rev) +
+    scale_x_discrete(position = "top")
+}
+```
+
+# Correlation Difference Matrix
+```{r}
+get_correlation_difference_matrix <- function(t1_correlations, t2_correlations) {
+  # Standardize correlations
+  std_function <- function(r) {
+    if (is.na(r)) {
+      return(NA)
+    } else if (abs(r) >= 1) {
+      return(NA)
+    } else {
+      return((abs(r) / sqrt((1 - abs(r)) * abs(r))) * sign(r))
+    }
+  }
+  
+  t1_std <- apply(t1_correlations, c(1, 2), std_function)
+  t2_std <- apply(t2_correlations, c(1, 2), std_function)
+  
+  # Compute the difference matrix
+  diff_std <- t1_std - t2_std
+  return(diff_std)
+}
+```
+
+
+# Correlation Distance Matrix
+
+```{r}
+get_correlation_distance_matrix <- function(t1_correlations, t2_correlations) {
+  # Standardize correlations
+  std_function <- function(r) {
+    if (is.na(r)) {
+      return(NA)
+    } else if (abs(r) >= 1) {
+      return(NA)
+    } else {
+      return((abs(r) / sqrt((1 - abs(r)) * abs(r))) * sign(r))
+    }
+  }
+  
+  t1_std <- apply(t1_correlations, c(1, 2), std_function)
+  t2_std <- apply(t2_correlations, c(1, 2), std_function)
+  
+  # Compute the difference matrix
+  diff_std <- t1_std - t2_std
+  
+  # Compute distances
+  inverse_function <- function(x) {
+    if (is.na(x) || x == 0) {
+      return(Inf)  # Prevent division by zero
+    } else {
+      return(1 / abs(x))
+    }
+  }
+  
+  dist_matrix <- apply(diff_std, c(1, 2), inverse_function)
+  
+  return(dist_matrix)
+}
+
+```
+
+# Correlation z-score matrix
+
+```{r}
+get_correlation_diff_z <- function(t1_correlations, t2_correlations) {
+  z_function <- function(r1, r2) {(r1-r2)/ (sqrt((1-r1^2) + (1-r2^2))) * sqrt(nrow(t1_correlations))}
+  
+  z_scores <- mapply(z_function, t1_correlations, t2_correlations)
+  
+  result <- matrix(z_scores, nrow=nrow(t1_correlations), ncol=ncol(t1_correlations))
+  
+  row.names(result) <- row.names(t1_correlations)
+  
+  return(result)
+}
+```
+
+# Differential Corr p-values
+```{r}
+get_correlation_diff_pvals <- function(t1_correlations, t2_correlations) {
+  z_function <- function(r1, r2) {(r1-r2)/ (sqrt((1-r1^2) + (1-r2^2))) * sqrt(nrow(t1_correlations))}
+  
+  z_scores <- mapply(z_function, t1_correlations, t2_correlations)
+  
+  pvals <- pnorm(z_scores)
+  
+  result <- matrix(pvals, nrow=nrow(t1_correlations), ncol=ncol(t1_correlations))
+  
+  row.names(result) <- row.names(t1_correlations)
+  
+  return(result)
+}
+```
+
+
+
+# Ploting Mean Differences
+
+```{r}
+plot_relative_abundances <- function(data, taxa, taxa_list, experiment) {
+  df <- data |>
+    filter({{taxa}} %in% taxa_list) |>
+    filter(Experiment == experiment) |>
+    group_by({{taxa}}, Treatment) |>
+    summarize(Total_Count = sum(Count), .groups = 'drop')
+
+  p <- ggplot(df, aes(x = {{taxa}}, y = Total_Count, fill = Treatment)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    labs(x = as_label(enquo(taxa)), y = "Total Abundance", title = "Relative Abundance by Treatment") +
+    theme_minimal()
+
+  return(p)
+}
+```
+
+# Plot Counts Over Time (Unfinished, Not sure what to do here)
+
+```{r}
+plot_counts_over_time <- function(data, taxa, t1, t2, experiment){
+  library(gridExtra)
+  
+  data$Sample <- paste(data$Season, data$Replicate, data$Year, sep = "_")
+  
+  df <- data |>
+    filter({{taxa}} %in% c(t1, t2))|>
+    filter(Experiment == experiment) |>
+    select({{taxa}}, Sample, Treatment, Count) |>
+    mutate(Sample = factor(
+        Sample,
+        levels = c("Bud_A_2016", "Bud_B_2016", "Bud_C_2016", "Bloom_A_2016", "Bloom_B_2016", "Bloom_C_2016", "Veraison_A_2016", "Veraison_B_2016", "Verasion_C_2016", "Harvest_A_2016", "Harvest_B_2016", "Harvest_C_2016", "Bud_A_2017", "Bud_B_2017", "Bud_C_2017", "Bloom_A_2017", "Bloom_B_2017", "Bloom_C_2017", "Veraison_A_2017", "Veraison_B_2017", "Verasion_C_2017", "Harvest_A_2017", "Harvest_B_2017", "Harvest_C_2017", "Bud_A_2018", "Bud_B_2018", "Bud_C_2018", "Bloom_A_2018", "Bloom_B_2018", "Bloom_C_2018", "Veraison_A_2018", "Veraison_B_2018", "Verasion_C_2018", "Harvest_A_2018", "Harvest_B_2018", "Harvest_C_2018"),
+        ordered = TRUE
+    )) |>
+    filter(!is.na(Sample))
+  
+  T1_counts <- df |>
+    filter(Treatment == "H")
+
+  T2_counts <- df |>
+    filter(Treatment == "NH")
+
+  # Create the first line chart
+plot1 <- 
+  ggplot(T1_counts, aes(x = Sample, y = Count, color = {{taxa}}, group = {{taxa}})) +
+  geom_line() +
+  ggtitle("Herbicide") +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x=element_blank()
+    )
+
+
+# Create the second line chart
+plot2 <- ggplot(T2_counts, aes(x = Sample, y = Count, color = {{taxa}}, group = {{taxa}})) +
+  geom_line() +
+  ggtitle("Non-Herbicide") +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x=element_blank()
+    )
+
+# Stack the two line charts vertically
+grid.arrange(plot1, plot2, ncol = 1)
+}
+```
+
+# Standardized counts over time
+```{r}
+plot_std_counts_over_time <- function(data, taxa, taxa_list, experiment) {
+  
+  data$Sample <- paste(data$Season, data$Replicate, data$Year, sep = "_")
+  
+  sample_levels <- c(
+    "Bud_A_2016", "Bud_B_2016", "Bud_C_2016",
+    "Bloom_A_2016", "Bloom_B_2016", "Bloom_C_2016",
+    "Veraison_A_2016", "Veraison_B_2016", "Verasion_C_2016",
+    "Harvest_A_2016", "Harvest_B_2016", "Harvest_C_2016",
+    "Bud_A_2017", "Bud_B_2017", "Bud_C_2017",
+    "Bloom_A_2017", "Bloom_B_2017", "Bloom_C_2017",
+    "Veraison_A_2017", "Veraison_B_2017", "Verasion_C_2017",
+    "Harvest_A_2017", "Harvest_B_2017", "Harvest_C_2017",
+    "Bud_A_2018", "Bud_B_2018", "Bud_C_2018",
+    "Bloom_A_2018", "Bloom_B_2018", "Bloom_C_2018",
+    "Veraison_A_2018", "Veraison_B_2018", "Verasion_C_2018",
+    "Harvest_A_2018", "Harvest_B_2018", "Harvest_C_2018"
+  )
+
+  df <- data |>
+    filter({{taxa}} %in% taxa_list, Experiment == experiment) |>
+    select({{taxa}}, Sample, Treatment, Count) |>
+    group_by({{taxa}}, Sample, Treatment) |>
+    summarize(Count = sum(Count), .groups = "drop") |>
+    group_by({{taxa}}) |>
+    mutate(Scaled_Count = (Count - mean(Count)) / sd(Count)) |>
+    ungroup() |>
+    mutate(Sample = factor(Sample, levels = sample_levels, ordered = TRUE)) |>
+    filter(!is.na(Sample))
+  
+  T1_counts <- df |> 
+    filter(Treatment == "H")
+  
+  T2_counts <- df |> 
+    filter(Treatment == "NH")
+
+  plot_T1 <- ggplot(T1_counts, aes(x = Sample, y = Scaled_Count, color = {{taxa}}, group = {{taxa}})) +
+    geom_line() +
+    ggtitle("Herbicide") +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+  plot_T2 <- ggplot(T2_counts, aes(x = Sample, y = Scaled_Count, color = {{taxa}}, group = {{taxa}})) +
+    geom_line() +
+    ggtitle("Non-Herbicide") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  combined_plot <- (plot_T1 / plot_T2) + plot_layout(guides = "collect") & theme(legend.position = "right")
+
+  return(combined_plot)
+}
+```
+
+## Background Colored by Year
+```{r}
+plot_std_counts_colored_year <- function(data, taxa, taxa_list, experiment) {
+  
+  data$Sample <- paste(data$Season, data$Replicate, data$Year, sep = "_")
+
+  sample_levels <- c(
+    "Bud_A_2016", "Bud_B_2016", "Bud_C_2016",
+    "Bloom_A_2016", "Bloom_B_2016", "Bloom_C_2016",
+    "Veraison_A_2016", "Veraison_B_2016", "Veraison_C_2016",
+    "Harvest_A_2016", "Harvest_B_2016", "Harvest_C_2016",
+    "Bud_A_2017", "Bud_B_2017", "Bud_C_2017",
+    "Bloom_A_2017", "Bloom_B_2017", "Bloom_C_2017",
+    "Veraison_A_2017", "Veraison_B_2017", "Veraison_C_2017",
+    "Harvest_A_2017", "Harvest_B_2017", "Harvest_C_2017",
+    "Bud_A_2018", "Bud_B_2018", "Bud_C_2018",
+    "Bloom_A_2018", "Bloom_B_2018", "Bloom_C_2018",
+    "Veraison_A_2018", "Veraison_B_2018", "Veraison_C_2018",
+    "Harvest_A_2018", "Harvest_B_2018", "Harvest_C_2018"
+  )
+
+  df <- data |>
+    filter({{taxa}} %in% taxa_list, Experiment == experiment) |>
+    select({{taxa}}, Sample, Treatment, Count, Year) |>
+    group_by({{taxa}}, Sample, Treatment) |>
+    summarize(Count = sum(Count), .groups = "drop") |>
+    group_by({{taxa}}) |>
+    mutate(Scaled_Count = (Count - mean(Count)) / sd(Count)) |>
+    ungroup() |>
+    mutate(Sample = factor(Sample, levels = sample_levels, ordered = TRUE)) |>
+    filter(!is.na(Sample)) |>
+    mutate(Year = as.factor(Year))
+
+  year_colors <- c("2016" = "lightblue", "2017" = "lightgreen", "2018" = "lightpink")
+
+  year_ranges <- df |>
+    group_by(Year) |>
+    summarize(xmin = min(as.numeric(Sample)), xmax = max(as.numeric(Sample)), .groups = "drop")
+
+  T1_counts <- df |> filter(Treatment == "H")
+  T2_counts <- df |> filter(Treatment == "NH")
+
+  plot_T1 <- ggplot(T1_counts, aes(x = Sample, y = Scaled_Count, color = {{taxa}}, group = {{taxa}})) +
+    geom_rect(data = year_ranges, aes(xmin = xmin - 0.5, xmax = xmax + 0.5, ymin = -Inf, ymax = Inf, fill = Year),
+              inherit.aes = FALSE, alpha = 0.2) +
+    scale_fill_manual(values = year_colors) +
+    geom_line() +
+    ggtitle("Herbicide") +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+  plot_T2 <- ggplot(T2_counts, aes(x = Sample, y = Scaled_Count, color = {{taxa}}, group = {{taxa}})) +
+    geom_rect(data = year_ranges, aes(xmin = xmin - 0.5, xmax = xmax + 0.5, ymin = -Inf, ymax = Inf, fill = Year),
+              inherit.aes = FALSE, alpha = 0.2) +
+    scale_fill_manual(values = year_colors) +
+    geom_line() +
+    ggtitle("Non-Herbicide") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  combined_plot <- (plot_T1 / plot_T2) + plot_layout(guides = "collect") & theme(legend.position = "right")
+
+  return(combined_plot)
+}
+
+```
+
+## Background Colored by Season
+```{r}
+plot_std_counts_colored_season <- function(data, taxa, taxa_list, experiment) {
+
+  data$Sample <- paste(data$Season, data$Replicate, data$Year, sep = "_")
+
+  sample_levels <- c(
+    "Bud_A_2016", "Bud_B_2016", "Bud_C_2016",
+    "Bloom_A_2016", "Bloom_B_2016", "Bloom_C_2016",
+    "Veraison_A_2016", "Veraison_B_2016", "Veraison_C_2016",
+    "Harvest_A_2016", "Harvest_B_2016", "Harvest_C_2016",
+    "Bud_A_2017", "Bud_B_2017", "Bud_C_2017",
+    "Bloom_A_2017", "Bloom_B_2017", "Bloom_C_2017",
+    "Veraison_A_2017", "Veraison_B_2017", "Veraison_C_2017",
+    "Harvest_A_2017", "Harvest_B_2017", "Harvest_C_2017",
+    "Bud_A_2018", "Bud_B_2018", "Bud_C_2018",
+    "Bloom_A_2018", "Bloom_B_2018", "Bloom_C_2018",
+    "Veraison_A_2018", "Veraison_B_2018", "Veraison_C_2018",
+    "Harvest_A_2018", "Harvest_B_2018", "Harvest_C_2018"
+  )
+
+  df <- data |>
+    filter({{taxa}} %in% taxa_list, Experiment == experiment) |>
+    select({{taxa}}, Sample, Treatment, Count, Year, Season) |>
+    group_by({{taxa}}, Sample, Treatment) |>
+    summarize(Count = sum(Count), .groups = "drop") |>
+    group_by({{taxa}}) |>
+    mutate(Scaled_Count = (Count - mean(Count)) / sd(Count)) |>
+    ungroup() |>
+    mutate(Sample = factor(Sample, levels = sample_levels, ordered = TRUE)) |>
+    filter(!is.na(Sample))
+
+  season_colors <- c("Bud" = "lightblue", "Bloom" = "lightgreen", "Veraison" = "lightpink", "Harvest" = "peachpuff")
+
+  season_ranges <- df |>
+    group_by(Season, Year) |>
+    summarize(xmin = min(as.numeric(Sample)), xmax = max(as.numeric(Sample)), .groups = "drop")
+
+  T1_counts <- df |> filter(Treatment == "H")
+  T2_counts <- df |> filter(Treatment == "NH")
+
+  plot_T1 <- ggplot(T1_counts, aes(x = Sample, y = Scaled_Count, color = {{taxa}}, group = {{taxa}})) +
+    geom_rect(data = season_ranges, aes(xmin = xmin - 0.5, xmax = xmax + 0.5, ymin = -Inf, ymax = Inf, fill = Season),
+              inherit.aes = FALSE, alpha = 0.2) +
+    scale_fill_manual(values = season_colors) +
+    geom_line() +
+    ggtitle("Herbicide") +
+    theme_minimal() +
+    theme(axis.text.x = element_blank(), axis.ticks.x = element_blank())
+
+  plot_T2 <- ggplot(T2_counts, aes(x = Sample, y = Scaled_Count, color = {{taxa}}, group = {{taxa}})) +
+    geom_rect(data = season_ranges, aes(xmin = xmin - 0.5, xmax = xmax + 0.5, ymin = -Inf, ymax = Inf, fill = Season),
+              inherit.aes = FALSE, alpha = 0.2) +
+    scale_fill_manual(values = season_colors) +
+    geom_line() +
+    ggtitle("Non-Herbicide") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  combined_plot <- (plot_T1 / plot_T2) + plot_layout(guides = "collect") & theme(legend.position = "right")
+
+  return(combined_plot)
+}
+
+
+```
+
+# Anomalies in Std counts over time
+
+```{r}
+corr_uv_df <- function(data, taxa, t1, t2, experiment){
+  library(dplyr)
+  library(tidyr)
+  library(ggplot2)
+  
+  data$Sample <- paste(data$Season, data$Replicate, data$Year, sep = "_")
+
+  df <- data |>
+    filter({{taxa}} %in% c(t1, t2)) |>
+    filter(Experiment == experiment) |>
+    select({{taxa}}, Sample, Treatment, Count, Year, Season) |>
+    group_by({{taxa}}) |>
+    mutate(Scaled_Count = (Count - mean(Count)) / sd(Count)) |>
+    ungroup() |>
+    filter(!is.na(Sample))
+
+  df_t1 <- df |> 
+    filter({{taxa}} == t1) |> 
+    rename(Scaled_t1 = Scaled_Count)
+  df_t2 <- df |> 
+    filter({{taxa}} == t2) |> 
+    rename(Scaled_t2 = Scaled_Count)
+
+  df_uivi <- df_t1 |> 
+    inner_join(df_t2, by = c("Sample", "Treatment", "Year", "Season")) |> 
+    mutate(uivi = Scaled_t1 * Scaled_t2) |>
+    mutate(Year = as.character(Year)) |>
+    mutate(Season = factor(Season, levels= c("Bud", "Bloom", "Veraison", "Harvest"), ordered=TRUE)) |>
+    group_by(Treatment, Season, Year) |>
+    summarize(uivi = sum(uivi)) |>
+    mutate(Month = case_when(Season == "Bud" ~ "03",
+                             Season == "Bloom" ~ "05",
+                             Season == "Veraison" ~ "07",
+                             Season == "Harvest" ~ "09"
+                             ),
+           date = make_date(Year,Month,1))
+
+  return(data = df_uivi)
+}
+```
+
+```{r}
+plot_uivi <- function(uivi_df, tax_names) {
+  
+    taxa_string <- if (length(tax_names) == 2) {
+    paste(tax_names[1], tax_names[2], sep = " and ")
+  } else {
+    paste(paste(tax_names[-length(tax_names)], sep = ", "), "and", tax_names[length(tax_names)])
+  }
+  plot_title <- paste("Correlation Contribution plot for", taxa_string)
+p <- ggplot() +
+    
+    geom_point(data = uivi_df, 
+               aes(x = date, y = uivi, color = Treatment), 
+               size = 2) +
+    
+    geom_line(data = uivi_df, 
+              aes(x = date, y = uivi, group = date), 
+              color = "gray50", linewidth = 0.5) +
+    
+    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(title = plot_title, 
+         x = "Date", y = "")
+return(p)
+}
+```
+
+
+```{r}
+plot_rainfall_overlay <- function(rainfall_df, uivi_df, tax_names) {
+  
+  taxa_string <- if (length(tax_names) == 2) {
+    paste(taxa, collapse = " and ")
+  } else {
+    paste(paste(taxa[-length(taxa)], collapse = ", "), "and", taxa[length(taxa)])
+  }
+  plot_title <- paste("Correlation Contribution plot for", taxa_string)
+  
+  ggplot() +
+    geom_bar(data = rainfall_df, 
+             aes(x = date, y = cumulative_rainfall), 
+             stat = "identity", fill = "skyblue") +
+    
+    geom_point(data = uivi_df, 
+               aes(x = date, y = uivi, color = Treatment), 
+               size = 2) +
+    
+    geom_line(data = uivi_df, 
+              aes(x = date, y = uivi, group = date), 
+              color = "gray50", linewidth = 0.5) +
+    
+    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+    labs(title = plot_title, 
+         x = "Date", y = "")
+}
+```
+
+
+## C/N overlay (only useable for Herbicide right now)
+```{r}
+plot_CN_overlay <- function(CN_df, uivi_df, experiment, tax_names) {
+  
+  # Format taxa for title
+  taxa_string <- if (length(tax_names) == 2) {
+    paste(tax_names, collapse = " and ")
+  } else {
+    paste(paste(tax_names[-length(tax_names)], collapse = ", "), "and", tax_names[length(tax_names)])
+  }
+  
+  plot_title_prefix <- paste("C/N Overlay for", taxa_string, "in", experiment, "experiment")
+  
+  CN_exp <- CN_df |>
+    filter(Treatment %in% c("H", "NH")) |>
+    select(Treatment, Season, Year, `%C (average)`, `%N (average)`, `C/N (average)`)
+  
+  CN_overlay <- merge(uivi_df, CN_exp) |>
+    select(-c(Month, date)) |>
+    mutate(Sample = factor(
+      paste0(Season, "_", Year),
+      levels = c("Bud_2016", "Bloom_2016", "Veraison_2016", "Harvest_2016", 
+                 "Bud_2017", "Bloom_2017", "Veraison_2017", "Harvest_2017", 
+                 "Bud_2018", "Bloom_2018", "Veraison_2018", "Harvest_2018"),
+      ordered = TRUE))
+  
+  # Reusable plot function
+  make_plot <- function(y_var, fill_color, label) {
+    ggplot() +
+      geom_bar(data = CN_overlay, aes(x = Sample, y = .data[[y_var]]), 
+               stat = "identity", fill = fill_color) +
+      geom_point(data = CN_overlay, aes(x = Sample, y = uivi, color = Treatment), size = 2) +
+      geom_line(data = CN_overlay, aes(x = Sample, y = uivi, group = Sample), 
+                color = "gray50", linewidth = 0.5) +
+      theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+      labs(title = paste(plot_title_prefix, "-", label),
+           x = "Sample", y = "")
+  }
+  
+  list(
+    plot_percent_C = make_plot("%C (average)", "gray50", "%C"),
+    plot_percent_N = make_plot("%N (average)", "darkolivegreen3", "%N"),
+    plot_CN_ratio  = make_plot("C/N (average)", "gray50", "C/N Ratio")
+  )
+}
+```
+
+
+
+# Plot Modules
+
+```{r}
+plot_cluster_module <- function(dat, taxa, module, experiment){
+  
+  dat <- dat |>
+    filter(Experiment == experiment) |>
+    group_by({{taxa}}, Treatment) |>
+    summarize(Total_Count = sum(Count), .groups = 'drop')
+  
+  dat %>%
+    filter(
+      {{taxa}} %in% module
+    ) %>%
+    ggplot(aes(x = Treatment,
+               y = Total_Count,
+               fill = {{taxa}})) +
+    geom_col() +
+    scale_fill_discrete()
+}
+```

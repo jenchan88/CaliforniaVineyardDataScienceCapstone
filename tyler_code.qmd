@@ -1,0 +1,221 @@
+---
+title: "code-tyler"
+format: html
+---
+
+```{r}
+library(here)
+library(tidyverse)
+library(paletteer)
+library(broom)
+library(vegan)
+```
+Load in Data
+
+```{r}
+dat_class <- read.csv(here("rarified_counts_by_Class.csv"))
+```
+
+```{r}
+dat_class_f <- dat_class |>
+  filter(Experiment == "Fertilizer") |>
+  collect()
+```
+
+## Visualizations
+
+### Enrichment of most common Classes across seasons
+
+```{r}
+plot_top_taxa <- function(dat, taxa, n){
+  
+  top_n <- dat %>%
+    group_by({{taxa}}) %>%
+    summarize(Count = sum(Count)) %>%
+    arrange(desc(Count)) %>%
+    slice(1:n) %>%
+    pull({{taxa}})
+  
+  cb_pal <- paletteer_d("ggsci::default_igv")[1:n]
+  
+  dat %>%
+    filter(
+      {{taxa}} %in% top_n
+    ) %>%
+    ggplot(aes(x = Season,
+               y = Count,
+               fill = {{taxa}})) +
+    geom_col() +
+    scale_fill_discrete(type = cb_pal)
+  
+}
+```
+
+```{r}
+plot_top_taxa(dat_class_f, Class, 10) +
+  facet_wrap(~Treatment) +
+  theme(legend.position = "none")
+```
+
+## Models
+
+```{r}
+run_models <- function(dat, taxa){
+  
+  # Find tax units with nonzero counts for this experiment
+  good_units <- dat %>%
+    group_by({{taxa}}) %>%
+    summarize(min_count = min(Count)) %>%
+    filter(min_count > 0) %>%
+    pull({{taxa}})
+
+  
+  # Nest into separate datasets for each tax unit
+  dat_nested <- dat %>%
+    filter({{taxa}} %in% good_units) %>%
+    group_by({{taxa}}) %>%
+    nest()
+
+  # Fit multilevel model for each tax unit
+  ## Random effects: season by year
+  ## Fixed effect: treatment
+  tests_list <- dat_nested$data %>% 
+    map(
+      ~lmerTest::lmer(log(Count) ~ Treatment + (1|Season/Year), 
+                     data = .)
+    )
+
+  # Run ANOVA to get pvals
+  tests <- tests_list %>%
+    map_dfr(~ .x %>% anova() %>% tidy())
+  
+  # Adjust p-vals for multiple testing over all tax units
+  tests %>%
+    mutate(
+      p_adjusted = p.adjust(tests$p.value, method = "BH"),
+      "{{taxa}}" := dat_nested %>% pull({{taxa}})
+    ) %>%
+    select({{taxa}}, p_adjusted, sumsq, statistic, p.value) %>%
+    arrange(p_adjusted)
+}
+```
+
+```{r}
+#| warning: FALSE
+run_models(dat_class_f, Class)
+```
+
+## SIMPER
+
+An alternative to the parametric modeling approach is to run a *SIMPER* analysis.
+
+The code for this is provided below:
+
+```{r}
+dat_cf_wide <- dat_class_f %>%
+  pivot_wider(names_from = Class,
+              values_from = Count,
+              id_cols = c(Sample_ID, Year, Season, Treatment, Experiment, Replicate))
+
+mat_cf <- dat_cf_wide %>%
+  select(-c(Sample_ID, Year, Season, Treatment, Experiment, Replicate)) %>%
+  as.matrix()
+
+```
+
+Variables with significant p-values would be considered the taxa that contribute most strongly to difference across treatments:
+
+```{r}
+simp <- simper(mat_cf, dat_cf_wide$Treatment)
+summary(simp)
+```
+
+## Crop Cover
+
+```{r}
+
+```
+
+
+# By Order
+
+```{r}
+dat_order <- read.csv(here("rarified_counts_by_Order.csv"))
+```
+
+## Herbicide
+```{r}
+dat_order_h <- dat_order |>
+  filter(Experiment == "Herbicide") |>
+  collect()
+```
+
+```{r}
+plot_top_taxa(dat_order_h, Order, 10) +
+  facet_wrap(~Treatment) +
+  theme(legend.position = "none")
+```
+
+```{r}
+#| warning: FALSE
+run_models(dat_order_h, Order)
+```
+
+Order 
+
+## Fertilizer
+
+```{r}
+dat_order_f <- dat_order |>
+  filter(Experiment == "Fertilizer") |>
+  collect()
+```
+
+```{r}
+plot_top_taxa(dat_order_f, Order, 10) +
+  facet_wrap(~Treatment) +
+  theme(legend.position = "none")
+```
+
+```{r}
+#| warning: FALSE
+run_models(dat_order_f, Order)
+```
+
+## Cover Crop
+```{r}
+dat_order_cc <- dat_order |>
+  filter(Experiment == "Crop Cover") |>
+  collect()
+```
+
+```{r}
+plot_top_taxa(dat_order_cc, Order, 10) +
+  facet_wrap(~Treatment) +
+  theme(legend.position = "top")
+```
+
+```{r}
+#| warning: FALSE
+run_models(dat_order_cc, Order)
+```
+
+```{r}
+dat_occ_wide <- dat_order_cc %>%
+  pivot_wider(names_from = Order,
+              values_from = Count,
+              id_cols = c(Sample_ID, Year, Season, Treatment, Experiment, Replicate))
+
+mat_occ <- dat_occ_wide %>%
+  select(-c(Sample_ID, Year, Season, Treatment, Experiment, Replicate)) %>%
+  as.matrix()
+
+```
+
+```{r}
+simp <- simper(mat_occ, dat_occ_wide$Treatment)
+summary(simp)
+```
+
+
+

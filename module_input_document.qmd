@@ -1,0 +1,187 @@
+---
+title: "Module Input Document"
+format: html
+echo: false
+warning: false
+params: 
+  experiment: "Herbicide"
+  taxlevel: Class
+  module: "10"
+  treatment1: "H"
+  treatment2: "NH"
+---
+```{r, echo=FALSE, message=FALSE}
+library(here)
+library(tidyverse)
+library(paletteer)
+library(broom)
+library(vegan)
+```
+
+```{r}
+source("abundance_helper_functions.r")
+source("functionality_helper_functions.r")
+source("correlation_contribution_helper_functions.r")
+```
+
+
+```{r}
+file_name <- paste0("rarified_counts_by_", as.character(params$taxlevel),".csv")
+dat_cl <- read.csv(here(file_name))
+rds_name <- paste0(params$experiment, params$treatment1, "_", params$treatment2, ".rds")
+cluster_list <- readRDS(here(paste0("modules_rds/", rds_name)))
+```
+
+```{r}
+params$experiment
+params$module
+taxa_names <- cluster_list[[params$module]]
+```
+# Ploting Mean Differences
+
+```{r}
+plot_relative_abundances(dat_cl, !!sym(params$taxlevel), taxa_names, params$experiment, params$treatment1, params$treatment2)
+```
+
+## Correlation Matrices
+```{r}
+corr_treatment1 <- get_correlation_matrix(dat_cl, as.character(params$taxlevel), params$treatment1)
+get_correlation_heatmap_2(corr_treatment1, taxa_names)
+corr_treatment2 <- get_correlation_matrix(dat_cl, as.character(params$taxlevel), params$treatment2)
+get_correlation_heatmap_2(corr_treatment2, taxa_names)
+```
+
+```{r}
+diffs <- get_correlation_difference_matrix(corr_treatment1, corr_treatment2)
+get_correlation_heatmap_differential(diffs, taxa_names)
+```
+
+
+## Abundance Over Time
+```{r, echo=FALSE}
+plot_std_counts_over_time(dat_cl, !!sym(params$taxlevel), taxa_names, params$experiment, params$treatment1, params$treatment2)
+```
+
+```{r}
+# Pairwise
+combinations <- combn(taxa_names, 2)
+combinations_list <- split(combinations, col(combinations))
+if (length(combinations_list) > 1){
+  for (combo in combinations_list){
+    print(plot_std_counts_over_time(dat_cl, !!sym(params$taxlevel), combo, params$experiment, params$treatment1, params$treatment2))
+  }
+}
+```
+
+```{r}
+# plot_raw_counts_by_treatment(dat_cl, !!sym(params$taxlevel), combo, params$experiment, params$treatment1, params$treatment2)
+```
+
+
+# Module Function
+```{r, echo=FALSE}
+library(microeco)
+library(stringr)
+regex <- prok_func_FAPROTAX[["func_tax"]]
+regex <- lapply(regex, function(taxa_regex) {
+  unlist(str_extract_all(taxa_regex, "[a-zA-Z0-9_]+"))
+})
+
+all_genus <- read.csv("all_genus.csv")
+```
+```{r, echo=FALSE}
+results <- module_function_search(taxa_names)
+cat("FUNCTIONS BY CLASS:\n")
+for (class in names(results$functions_by_class)) {
+  cat(paste0("  - ", class, ":\n"))
+  funcs <- results$functions_by_class[[class]]
+  for (f in funcs) {
+    cat(paste0("      * ", f, "\n"))
+  }
+}
+cat("\nFUNCTION COUNTS:\n")
+for (f in names(results$function_counts)) {
+  cat(paste0("  ", f, ": ", results$function_counts[[f]], "\n"))
+}
+cat("\nSHARED PERCENTAGE:\n")
+cat(paste0("  ", results$shared_percentage, "%\n"))
+cat("\nSIMILARITY METRIC:\n")
+cat(paste0("  ", (results$metric * 100), "%\n"))
+```
+
+# Random Sampling 
+```{r, echo=FALSE}
+module_size <- length(taxa_names)
+sample_module <- readRDS(paste0("sample_modules/sample_module_size_", module_size, ".rds"))
+
+sample_module$samples[4, ] |>
+  unlist() |>
+  hist(main = paste("Random Samples of Size", module_size), xlab = "Similarity Metric", col = "skyblue", border = "white")
+abline(v = results$metric, col='red', lwd = 3)
+#module_function_search(taxa_names)$metric
+
+n_repeats <- length(sample_module$samples[4,])
+pval <- sum(unlist(sample_module$samples[4,]) >= results$metric) / n_repeats
+
+cat("P_VALUE:\n", pval, "\n")
+```
+
+# Edaphic Data
+```{r, echo=FALSE}
+rainfall <- read.csv("rainfall.csv")
+
+rainfall_month <- rainfall |>
+  select(DATE, PRCP) |>
+  mutate(year = year(DATE),
+         month = month(DATE))|>
+  group_by(year, month) |>
+  summarize(total_rain = sum(PRCP)) |>
+  mutate(season = case_when(month == 2 | month == 3 ~ "bud",
+                            month == 4 | month == 5 ~ "bloom",
+                            month == 6 | month == 7 ~ "veraison",
+                            month == 8 | month == 9 ~ "harvest")) |>
+  filter(year %in% c(2016, 2017, 2018)) |>
+  rename(Season = season, Year = year) |>
+  mutate(Season = tools::toTitleCase(Season)) |>
+  mutate(cumulative_rainfall = cumsum(total_rain)) |>
+  mutate(date = make_date(Year, month, 1))
+```
+
+
+```{r, echo=FALSE}
+library(readxl)
+CNdata_sheets <- excel_sheets("cndata.xlsx")
+CNdata_2016 <- read_xlsx("cndata.xlsx", sheet = "2016")
+CNdata_2017 <- read_xlsx("cndata.xlsx", sheet = "2017")
+CNdata_2018 <- read_xlsx("cndata.xlsx", sheet = "2018")
+
+CNdata_2016 <- CNdata_2016 |>
+  mutate(Year = "2016")
+
+CNdata_2017 <- CNdata_2017 |>
+  mutate(Year = "2017")
+
+CNdata_2018 <- CNdata_2018 |>
+  mutate(Year = "2018")
+
+CNdata <- rbind(CNdata_2016, CNdata_2017, CNdata_2018)
+CNdata <- CNdata |>
+  mutate(
+    Season = sub("\\s.*$", "", `Sample Name`),
+    Treatment = sub("^.*\\s", "", `Sample Name`)
+  )
+CNdata$Treatment[CNdata$Treatment == "Veraison"] <- "OF"
+```
+
+```{r}
+for (combo in combinations_list) {
+  uv_df <- corr_uv_df(dat_cl, !!sym(params$taxlevel), combo[1], combo[2], params$experiment, params$treatment1, params$treatment2)
+  print(plot_rainfall_overlay(rainfall_month, uv_df, combo))
+  print(plot_CN_overlay(CNdata, uv_df, combo, params$experiment, params$treatment1, params$treatment2))
+}
+```
+
+
+
+
+

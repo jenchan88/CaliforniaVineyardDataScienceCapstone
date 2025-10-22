@@ -1,0 +1,80 @@
+Cover Crop: NCC-LW
+
+$`11`
+[1] "acidobacteriia" "caldisericia"  
+
+$`10`
+[1] "spartobacteria" "mollicutes"    
+
+$`2`
+[1] "actinomycetia"       "bacilli"             "blastocatellia"      "gammaproteobacteria" "gemmatimonadetes"    "deferribacteres"    
+[7] "dictyoglomia"       
+
+$`31`
+[1] "synergistia"   "negativicutes"
+
+$`25`
+[1] "oligoflexia"         "thermoanaerobaculia" "thermoflexia"        "deinococci"          "gloeobacteria"      
+
+$`4`
+[1] "thermoleophilia" "holophagae"     
+
+$`24`
+[1] "ignavibacteria"              "candidatus saccharibacteria"
+
+$`21`
+[1] "nitrospira"             "caldilineae"            "thermodesulfovibrionia" "dehalococcoidia"       
+
+$`5`
+[1] "rubrobacteria"       "flavobacteriia"      "thermolithobacteria"
+
+$`23`
+[1] "candidatus brocadiae" "bacteroidetes"       
+
+$`7`
+[1] "deltaproteobacteria" "coriobacteriia"     
+
+$`22`
+[1] "anaerolineae"    "nitriliruptoria"
+
+$`19`
+[1] "phycisphaerae"     "hydrogenophilalia" "florideophyceae"  
+
+$`27`
+[1] "endomicrobia" "spirochaetia"
+
+$`3`
+[1] "betaproteobacteria" "lentisphaeria"     
+
+$`34`
+[1] "thermodesulfobacteria" "aquificae"            
+
+$`17`
+[1] "chloroflexia"  "clostridia"    "fibrobacteria"
+
+$`20`
+[1] "saprospiria"     "ktedonobacteria" "nitrospinia"    
+
+$`8`
+[1] "chitinophagia"     "acidithiobacillia"
+
+$`32`
+[1] "chlamydiia"    "cloacimonetes"
+
+$`15`
+[1] "planctomycetia"           "fimbriimonadia"           "candidatus tectomicrobia" "erysipelotrichia"        
+
+$`6`
+[1] "opitutae"       "thermomicrobia" "armatimonadia" 
+
+$`13`
+[1] "acidimicrobiia"        "epsilonproteobacteria"
+
+$`26`
+[1] "thermotogae" "chlorobia"  
+
+$`9`
+[1] "sphingobacteriia" "chrysiogenetes"  
+
+$`1`
+[1] "alphaproteobacteria" "bacteroidia"         "ardenticatenia"     

@@ -1,0 +1,151 @@
+```{r}
+# new correlation matrix function with filtering for sparse microorganism count over time
+
+
+get_correlation_matrix_new <- function(data, taxa, treatment, max_zeros = 3) {
+  filtered_data <- data |>
+    filter(Treatment == treatment) |>
+    group_by(!!sym(taxa)) |>  
+    mutate(zero_count = sum(Count == 0)) |>  
+    filter(zero_count <= max_zeros) |>  
+    ungroup() |>
+    select(-zero_count)  
+  
+  cb_trt <- filtered_data |>
+    select(all_of(taxa), Sample_ID, Count) |>
+    pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+  
+  taxa_labels <- cb_trt[[taxa]]
+  
+  filtered_counts <- cb_trt |>
+    select(-all_of(taxa)) |>
+    select(where(~ sd(.) != 0))  
+  
+  correlation_matrix <- cor(t(filtered_counts))
+  
+  colnames(correlation_matrix) <- taxa_labels
+  rownames(correlation_matrix) <- taxa_labels
+  
+  return(correlation_matrix)
+}
+```
+
+```{r}
+plot_cluster_heatmap <- function(analysis_results, clusters_to_plot = NULL, treatment_comparison = NULL) {
+  if (is.null(clusters_to_plot)) {
+    clusters_to_plot <- names(analysis_results$clusters)
+  }
+
+  modules <- analysis_results$clusters[clusters_to_plot]
+
+  module_classes <- unlist(modules, use.names = FALSE)
+  z_sub <- analysis_results$z_matrix[module_classes, module_classes]
+  z_sub[!is.finite(z_sub)] <- 0
+
+  z_long <- melt(z_sub)
+  colnames(z_long) <- c("Class1", "Class2", "Z")
+  z_long$Class1 <- factor(z_long$Class1, levels = module_classes)
+  z_long$Class2 <- factor(z_long$Class2, levels = module_classes)
+
+  module_positions <- data.frame(
+    Module = names(modules),
+    Start = cumsum(c(1, head(sapply(modules, length), -1))),
+    Length = sapply(modules, length)
+  )
+  module_positions$End <- module_positions$Start + module_positions$Length - 1
+  module_positions$Mid <- (module_positions$Start + module_positions$End) / 2
+
+  heatmap_plot <- ggplot(z_long, aes(x = Class1, y = Class2, fill = Z)) +
+    geom_tile() +
+    scale_fill_gradient2(
+      low = "blue",
+      mid = "grey90",
+      high = "grey90", 
+      midpoint = 0,
+      name = "Z-score"
+    ) +
+    geom_rect(
+      data = module_positions,
+      aes(xmin = Start - 0.5, xmax = End + 0.5,
+          ymin = Start - 0.5, ymax = End + 0.5),
+      inherit.aes = FALSE,
+      color = "black", fill = NA, linewidth = 0.6
+    ) +
+    geom_text(
+      data = module_positions,
+      aes(x = Mid, y = Mid, label = Module),
+      inherit.aes = FALSE,
+      size = 4, fontface = "bold", color = "black"
+    ) +
+    geom_text(
+      data = module_positions,
+      aes(x = Mid, y = -1, label = Module),
+      inherit.aes = FALSE,
+      size = 3, angle = 90, hjust = 1
+    ) +
+    labs(title = paste(treatment_comparison, "Treatment Comparison")) +  
+    theme_minimal(base_size = 10) +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+      axis.text.y = element_text(size = 8),
+      panel.grid = element_blank(),
+      plot.title = element_text(hjust = 0.5, face = "bold") 
+    ) +
+    xlab("") + ylab("")
+
+  return(heatmap_plot)
+}
+
+compare_class_correlations_new <- function(data_file, treatment1, treatment2, hcut = 0.1, remove_singletons = TRUE) {
+  library(here)
+  library(ggplot2)
+  library(reshape2)
+  library(tidyr)
+  library(dplyr)
+  library(ggdendro)
+
+  dat_cl <- read.csv(here(data_file))
+
+  mat1 <- get_correlation_matrix_new(dat_cl, "Class", treatment1)
+  mat1[is.na(mat1)] <- 0
+  mat2 <- get_correlation_matrix_new(dat_cl, "Class", treatment2)
+  mat2[is.na(mat2)] <- 0
+
+  p_vals <- get_correlation_diff_pvals(mat1, mat2)
+  p_vals[is.na(p_vals)] <- 0
+  hc <- hclust(as.dist(p_vals), method = "average")
+
+  dendro_plot <- ggdendrogram(hc, rotate = TRUE)
+
+  clusters <- cutree(hc, h = hcut)
+
+  ordered_labels <- hc$labels[hc$order]
+  cluster_list <- split(names(clusters), clusters)
+
+  cluster_order <- sapply(cluster_list, function(x) which(ordered_labels %in% x)[1])
+  cluster_list <- cluster_list[order(cluster_order)]
+
+  if (remove_singletons) {
+    cluster_list <- cluster_list[sapply(cluster_list, length) > 1]
+    if (length(cluster_list) == 0) {
+      warning("No non-singleton clusters found at this cut height.")
+    }
+  }
+
+  z_matrix <- get_correlation_diff_z(mat1, mat2)
+  colnames(z_matrix) <- rownames(z_matrix)
+
+  return(list(
+    dendrogram = dendro_plot,
+    hclust = hc,
+    clusters = cluster_list,
+    z_matrix = z_matrix,
+    p_values = p_vals,
+    cut_height = hcut,
+    removed_singletons = remove_singletons
+  ))
+}
+
+```
+
+

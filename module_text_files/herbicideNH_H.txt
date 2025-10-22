@@ -1,0 +1,84 @@
+Herbicide:
+NH-H
+
+$`2`
+"actinomycetia"  "anaerolineae"   "coriobacteriia" "lentisphaeria"  "nitrospinia"   
+
+$`9`
+"deltaproteobacteria" "acidobacteriia"      "negativicutes"      
+
+$`6`
+"rubrobacteria"       "gammaproteobacteria" "firmicutes"          "chrysiogenetes"     
+
+$`21`
+"caldilineae"     "nitriliruptoria"
+
+$`17`
+ "chloroflexia"    "ktedonobacteria"
+
+$`16`
+"cyanobacteria"            "candidatus tectomicrobia" "armatimonadia"           
+
+$`10`
+"chitinophagia"          "thermodesulfovibrionia" "holophagae"            
+
+$`15`
+"acidimicrobiia"        "epsilonproteobacteria"
+
+$`24`
+"thermotogae"    "bacteroidetes"  "ardenticatenia"
+
+$`14`
+"flavobacteriia" "nitrospira"    
+
+$`31`
+"thermolithobacteria" "deferribacteres"    
+
+$`26`
+"erysipelotrichia" "chlorobia"       
+
+$`13`
+"cytophagia"        "hydrogenophilalia" "deinococci"       
+
+$`33`
+"mollicutes"    "gloeobacteria"
+
+$`4`
+"betaproteobacteria" "oligoflexia"       
+
+$`25`
+ "endomicrobia" "dictyoglomia"
+
+$`1`
+"alphaproteobacteria" "verrucomicrobiae"    "aquificae"          
+
+$`7`
+"opitutae"         "sphingobacteriia" "thermomicrobia"  
+
+$`36`
+ "methylacidiphilae" "florideophyceae"  
+
+$`30`
+"spirochaetia" "chlamydiia"  
+
+$`8`
+"blastocatellia"       "candidatus brocadiae" "dehalococcoidia"     
+
+$`22`
+"fimbriimonadia" "fibrobacteria" 
+
+$`5`
+"thermoleophilia" "planctomycetia" 
+
+$`12`
+"gemmatimonadetes" "thermoflexia"    
+
+$`3`
+ "bacilli"             "thermoanaerobaculia"
+
+$`19`
+"clostridia"   "caldisericia"
+
+$`11`
+"spartobacteria" "ignavibacteria"
+

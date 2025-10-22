@@ -1,0 +1,409 @@
+---
+title: "taxa_functions"
+format: html
+editor: source
+---
+
+```{r}
+library(tidyverse)
+library(igraph)
+OTU_long <- read.csv('counts_by_OTU_long.csv')
+```
+
+
+```{r}
+library(microeco)
+library(stringr)
+regex <- prok_func_FAPROTAX[["func_tax"]]
+regex <- lapply(regex, function(taxa_regex) {
+  unlist(str_extract_all(taxa_regex, "[a-zA-Z0-9_]+"))
+})
+
+search_taxa <- function(taxa) {
+  taxa_lower <- tolower(taxa)
+  functions_with_taxa <- c()
+  for (func in names(regex)) {
+  taxa_list_lower <- tolower(regex[[func]])
+  if (taxa_lower %in% taxa_list_lower) {
+    functions_with_taxa <- c(functions_with_taxa, func)
+    }
+  }
+return(functions_with_taxa)
+}
+```
+
+```{r}
+search_taxa("actinomycetia")
+search_taxa("ignavibacteria")
+
+list(unique(c(search_taxa("actinomyces"),search_taxa("streptomyces"))))
+```
+
+```{r}
+# all_genus <- OTU_long |>
+#   distinct(Genus, .keep_all = TRUE) |>
+#   select(c(Class, Order, Family, Genus))
+
+#write to new csv b/c otu_long too large
+#write.table(all_genus, file = "all_genus.csv", sep = ",", row.names = FALSE, col.names = TRUE)
+```
+
+```{r}
+all_genus <- read.csv("all_genus.csv")
+```
+
+```{r}
+lower_level_search_taxa <- function(level, class) {
+  taxa_list <- all_genus |>
+    filter(Class == class) |>
+    distinct({{level}}, .keep_all = TRUE) |>
+    pull({{level}})
+  
+  functions <- c()
+  for (t in taxa_list) {
+    funcs <- search_taxa(t)
+    functions <- c(functions, funcs)
+  }
+  return(unique(functions))
+}
+```
+
+
+```{r}
+lower_level_search_taxa(Order, "actinomycetia")
+lower_level_search_taxa(Order, "ignavibacteria")
+```
+
+```{r}
+lower_level_search_taxa(Order, "bacilli")
+lower_level_search_taxa(Order, "deltaproteobacteria")
+lower_level_search_taxa(Order, "chlorobia")
+```
+
+```{r}
+lower_level_search_taxa(Family, "betaproteobacteria")
+lower_level_search_taxa(Family, "chitinophagia")
+lower_level_search_taxa(Family, "nitrospinia")
+```
+
+```{r}
+lower_level_search_taxa(Genus, "acidimicrobiia")
+lower_level_search_taxa(Genus,"thermoanaerobaculia")
+lower_level_search_taxa(Genus, "acidithiobacillia")
+```
+
+```{r}
+module_function_search <- function(module, t_level=Genus) {
+  taxa_functions <- list()
+  all_functions <- c()
+  
+  for (taxa in module) {
+    func_list <- lower_level_search_taxa({{t_level}}, taxa)
+    taxa_functions[[taxa]] <- func_list
+    all_functions <- c(all_functions, func_list)
+  }
+
+  function_counts <- table(all_functions)
+  
+  # Compute score
+  total_functions <- length(function_counts)
+  shared_functions <- sum(function_counts > 1)
+  score <- (shared_functions / total_functions) * 100
+  
+  return(list(
+    functions_by_class = taxa_functions,
+    function_counts = function_counts,
+    shared_percentage = score
+  ))
+}
+```
+
+# Module Function Search With Shared Function Metric
+```{r}
+module_function_search2 <- function(module, t_level=Genus) {
+  taxa_functions <- list()
+  all_functions <- c()
+  
+  for (taxa in module) {
+    func_list <- lower_level_search_taxa({{t_level}}, taxa)
+    taxa_functions[[taxa]] <- func_list
+    all_functions <- c(all_functions, func_list)
+  }
+
+  function_counts <- table(all_functions)
+  
+  # Compute score
+  total_functions <- length(function_counts)
+  shared_functions <- sum(function_counts > 1)
+  score <- (shared_functions / total_functions) * 100
+  
+  #Put module in matrix form and compute metric 
+  function_matrix <- create_function_matrix(module, all_functions)
+
+  for (i in seq_along(taxa_functions)) {
+    function_matrix[i, taxa_functions[[i]]] <- 1
+    }
+
+  if (length(all_functions) == 0){ 
+    metric <- 0 
+  } else{
+      metric <- shared_function_metric(function_matrix)
+    }
+  
+  return(list(
+    functions_by_class = taxa_functions,
+    function_counts = function_counts,
+    shared_percentage = score,
+    metric = metric
+  ))
+}
+```
+
+# Random Sampling Function
+```{r}
+# we want to take in a module as input and return the module's functionality metric and where that lies in a distribution of random samples of the same size 
+sample_module <- function(module, n_repeats){
+  
+  module_size <- length(module)
+  module_score <- module_function_search2(module)$metric
+  random_sample <- classes[sample(nrow(classes), module_size), ]
+
+  samples_list <- vector("list", n_repeats)
+  
+  for (i in 1:n_repeats) {
+  samples_list[[i]] <- classes[sample(nrow(classes), module_size), ]
+  }
+
+  samples <- sapply(samples_list, module_function_search2)
+  metrics <- unlist(samples[4,])
+  pval <- (sum(metrics >= module_score) / n_repeats)
+  
+  return(
+    list(samples = samples,
+         pval = pval
+         ))
+}
+
+```
+
+#RDS Random Sampling 
+```{r}
+sample_module2 <- function(module_size, n_repeats){
+  
+  random_sample <- classes[sample(nrow(classes), module_size), ]
+
+  samples_list <- vector("list", n_repeats)
+  
+  for (i in 1:n_repeats) {
+  samples_list[[i]] <- classes[sample(nrow(classes), module_size), ]
+  }
+
+  samples <- sapply(samples_list, module_function_search2)
+  metrics <- unlist(samples[4,])
+  
+  return(
+    list(samples = samples
+         ))
+}
+```
+
+# Random Sampling Visualization 
+```{r}
+# We perform random sampling of "clusters" of microorganisms (in this case, the same size as module 10, 5 microorganisms). 
+sample_mod10 <- sample_module(cluster_list$`10`, 300)
+
+sample_mod10$samples[4, ] |>
+  unlist() |>
+  hist(main = "Random Samples of Size 5", xlab = "Similarity Metric", col = "skyblue", border = "white")
+abline(v = module_function_search2(cluster_list$`10`)$metric, col='red', lwd = 3)
+
+sample_mod10$samples[4, ] |>
+  unlist() |>
+  table() |>
+  barplot(col = "lightgreen", main = "Bar Plot of Value Counts", xlab = "Value", ylab = "Count")
+```
+
+```{r}
+sample_mod3 <- sample_module(cluster_list$`3`, 300)
+
+sample_mod3$samples[4, ] |>
+  unlist() |>
+  hist(main = "Random Samples of Size 3", xlab = "Similarity Metric", col = "skyblue", border = "white")
+abline(v = module_function_search2(cluster_list$`3`)$metric, col='red', lwd = 3)
+
+sample_mod10$samples[4, ] |>
+  unlist() |>
+  table() |>
+  barplot(col = "lightgreen", main = "Bar Plot of Value Counts", xlab = "Value", ylab = "Count")
+```
+
+```{r}
+sample_mod11 <- sample_module(cluster_list$`11`, 300)
+
+sample_mod11$samples[4, ] |>
+  unlist() |>
+  hist(main = "Random Samples of Size 2", xlab = "Similarity Metric", col = "skyblue", border = "white")
+abline(v = module_function_search2(cluster_list$`11`)$metric, col='red', lwd = 3)
+
+sample_mod10$samples[4, ] |>
+  unlist() |>
+  table() |>
+  barplot(col = "lightgreen", main = "Bar Plot of Value Counts", xlab = "Value", ylab = "Count")
+```
+
+
+```{r}
+network <- graph_from_adjacency_matrix(tcrossprod(function_matrix1), mode="undirected")
+ 
+# plot it
+plot(network)
+```
+
+# Module Ranking Function
+Takes as input the modules and returns ranking on function similarity
+```{r}
+module_similarity_ranking <- function(modules) {
+    module_scores <- data.frame(Module = character(), Similarity_Score = numeric())
+
+  for (i in seq_along(modules)) {
+    if (length(modules[[i]]) > 5) {
+      similarity_score <- 0
+    }
+    else {
+    result <- module_function_search(modules[[i]], Genus)
+    similarity_score <- result$shared_percentage
+    }
+    module_scores <- rbind(module_scores, data.frame(Module = i, Similarity_Score = similarity_score))
+  }
+  
+  module_scores <- module_scores[order(-module_scores$Similarity_Score), ]
+  
+  return(module_scores)
+}
+```
+
+```{r}
+module_similarity_ranking(cluster_list)
+```
+
+# Module Ranking Function by new metric 
+Takes as input the modules and returns ranking on function similarity
+```{r}
+module_similarity_ranking2 <- function(modules) {
+    module_scores <- data.frame(Module = character(), Similarity_Score = numeric())
+
+  for (i in seq_along(modules)) {
+    if (length(modules[[i]]) > 5) {
+      similarity_score <- 0
+    }
+    else {
+    result <- module_function_search2(modules[[i]], Genus)
+    similarity_score <- result$metric
+    }
+    module_scores <- rbind(module_scores, data.frame(Module = i, Similarity_Score = similarity_score))
+  }
+  
+  module_scores <- module_scores[order(-module_scores$Similarity_Score), ]
+  
+  return(module_scores)
+}
+```
+
+```{r}
+module_similarity_ranking2(cluster_list)
+```
+
+# Module Ranking Function by pvalue
+Takes as input the modules and returns ranking on function similarity
+```{r}
+module_similarity_ranking3 <- function(modules, n_repeats) {
+    module_pvals <- data.frame(Module = character(), P_Value = numeric())
+
+  for (i in seq_along(modules)) {
+    if (length(modules[[i]]) > 5) {
+      similarity_score <- 0
+    }
+    else {
+    result <- sample_module(modules[[i]], n_repeats)
+    pval <- result$pval
+    }
+    module_pvals <- rbind(module_pvals, data.frame(Module = i, 
+                                                     P_vals = pval))
+  }
+  
+  module_pvals <- module_pvals[order(module_pvals$P_vals), ]
+  
+  return(module_pvals)
+}
+```
+
+# Using RDS
+```{r}
+module_similarity_ranking4 <- function(modules, n_repeats) {
+    module_pvals <- data.frame(Module = character(), P_Value = numeric())
+
+  for (i in seq_along(modules)) {
+    if (length(modules[[i]]) > 5) {
+      similarity_score <- 0
+    }
+    else {
+    result <- readRDS(paste0("sample_modules/sample_module_", i, ".rds"))
+    pval <- result$pval
+    }
+    module_pvals <- rbind(module_pvals, data.frame(Module = i, 
+                                                     P_vals = pval))
+  }
+  
+  module_pvals <- module_pvals[order(module_pvals$P_vals), ]
+  
+  return(module_pvals)
+}
+```
+
+```{r}
+module_similarity_ranking4(cluster_list, 300)
+```
+```{r}
+module_similarity_ranking2(cluster_list)
+```
+
+```{r}
+module_similarity_ranking3(cluster_list_0.05, 300)
+```
+
+```{r}
+sample_mod10 <- readRDS("sample_modules/sample_module_10.rds")
+sample_mod10$metric
+
+length(sample_mod10$samples[4,])
+
+sample_mod10$samples[4,]
+sum(unlist(sample_mod10$samples[4,]))
+```
+
+
+### Helper Functions
+#Create Function Matrix 
+```{r}
+create_function_matrix <- function(module, function_list){
+    function_matrix <- matrix(0, nrow = length(module),  
+                               ncol =  length(unique(function_list)),
+                               dimnames = 
+                              list(module,unique(function_list)))
+
+    return(function_matrix)
+}
+```
+
+# Shared Function Metric
+```{r}
+shared_function_metric <- function(matrix) {
+    cross <- tcrossprod(matrix)
+    connected <- sum(cross[row(cross) > col(cross)])
+    unconnected <- sum(diag(cross))
+
+    return(connected/(connected + unconnected))
+}
+```
+
+

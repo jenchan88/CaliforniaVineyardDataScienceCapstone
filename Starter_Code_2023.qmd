@@ -1,0 +1,168 @@
+---
+title: "Starter Code - Summer 2023"
+format: html
+editor: visual
+---
+
+```{r}
+## General libraries
+library(tidyverse)
+library(here)
+library(paletteer)
+library(broom)
+library(vegan)
+```
+
+```{r}
+## For connecting to the database
+library(dbplyr)
+library(odbc)
+library(DBI)
+library(RMySQL)
+```
+
+## Getting the Data
+
+This dataset is derived from 287 soil samples taken across three years (2016, 2017, 2018). In each of the three years, soil was sampled in four season: Bud, Bloom, Veraison, Harvest.
+
+Three experiments were performed on the soil:
+
+**Crop Cover:** Treatments of no crop cover (`NCC`), low water crop cover (`LW`), or high water crop cover (`HW`)
+
+**Herbicide:** Treatments of herbicide (`H`) or no herbicide (`NH`)
+
+**Fertilizer:** Treatments of synthetic fertilizer (`SF`), organic fertilizer (`OF`), and no fertilizer (`NF`)
+
+For each treatment, in each year and season, three replicate samples were taken (`A`, `B`, and `C`).
+
+Across all the samples, 69,248 unique prokaryotic Operational Taxonomic Units (OTUs) were identified.
+
+Because these datasets are very large, they are hosted on a SQL database. You can connect to the database by running the code below:
+
+```{r}
+dat_class <- read.csv(here("rarified_counts_by_Class.csv"))
+```
+
+Once connected, you can access the datasets as follows:
+
+Although the object named `dat` appears to be an ordinary data frame, it is in fact only a *connection* to the SQL data storage location. This allows you to preview the data without reading the whole thing into your local R memory.
+
+The original dataset `counts_by_OTU` contains the counts for every OTU in every sample. This is stored in wide form (one column per sample), because the long form would have 19,874,176 rows. I do not recommend reading this whole dataset into R!
+
+Instead, counts have been aggregated for you at various taxonomic levels (Class, Order, Family, Genus, Species), rarified, and converted to long form; i.e., one row per taxonomic unit per sample.
+
+Once you've found the dataset you're interested in, you should choose which experiment you want to study, and then pull it out of the SQL server and into R with `collect()`
+
+```{r}
+dat_class_f <- dat_class %>%
+  filter(Experiment == "Fertilizer") %>%
+  collect()
+```
+
+## Visualizations
+
+### Enrichment of most common Classes across seasons
+
+```{r}
+plot_top_taxa <- function(dat, taxa, n){
+  
+  top_n <- dat %>%
+    group_by({{taxa}}) %>%
+    summarize(Count = sum(Count)) %>%
+    arrange(desc(Count)) %>%
+    slice(1:n) %>%
+    pull({{taxa}})
+  
+  cb_pal <- paletteer_d("ggsci::default_igv")[1:n]
+  
+  dat %>%
+    filter(
+      {{taxa}} %in% top_n
+    ) %>%
+    ggplot(aes(x = Season,
+               y = Count,
+               fill = {{taxa}})) +
+    geom_col() +
+    scale_fill_discrete(type = cb_pal)
+  
+}
+```
+
+```{r}
+plot_top_taxa(dat_class_f, Class, 10) +
+  facet_wrap(~Treatment) +
+  theme(legend.position = "none")
+```
+
+## Models
+
+```{r}
+run_models <- function(dat, taxa){
+  
+  # Find tax units with nonzero counts for this experiment
+  good_units <- dat %>%
+    group_by({{taxa}}) %>%
+    summarize(min_count = min(Count)) %>%
+    filter(min_count > 0) %>%
+    pull({{taxa}})
+
+  
+  # Nest into separate datasets for each tax unit
+  dat_nested <- dat %>%
+    filter({{taxa}} %in% good_units) %>%
+    group_by({{taxa}}) %>%
+    nest()
+
+  # Fit multilevel model for each tax unit
+  ## Random effects: season by year
+  ## Fixed effect: treatment
+  tests_list <- dat_nested$data %>% 
+    map(
+      ~lmerTest::lmer(log(Count) ~ Treatment + (1|Season/Year), 
+                     data = .)
+    )
+
+  # Run ANOVA to get pvals
+  tests <- tests_list %>%
+    map_dfr(~ .x %>% anova() %>% tidy())
+  
+  # Adjust p-vals for multiple testing over all tax units
+  tests %>%
+    mutate(
+      p_adjusted = p.adjust(tests$p.value, method = "BH"),
+      "{{taxa}}" := dat_nested %>% pull({{taxa}})
+    ) %>%
+    select({{taxa}}, p_adjusted, sumsq, statistic, p.value) %>%
+    arrange(p_adjusted)
+}
+```
+
+```{r}
+#| warning: FALSE
+run_models(dat_class_f, Class)
+```
+
+## SIMPER
+
+An alternative to the parametric modeling approach is to run a *SIMPER* analysis.
+
+The code for this is provided below:
+
+```{r}
+dat_cf_wide <- dat_class_f %>%
+  pivot_wider(names_from = Class,
+              values_from = Count,
+              id_cols = c(Sample_ID, Year, Season, Treatment, Experiment, Replicate))
+
+mat_cf <- dat_cf_wide %>%
+  select(-c(Sample_ID, Year, Season, Treatment, Experiment, Replicate)) %>%
+  as.matrix()
+
+```
+
+Variables with significant p-values would be considered the taxa that contribute most strongly to difference across treatments:
+
+```{r}
+simp <- simper(mat_cf, dat_cf_wide$Treatment)
+summary(simp)
+```

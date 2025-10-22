@@ -1,0 +1,474 @@
+---
+title: "Treatment/Species counts"
+format: html
+---
+```{r}
+library(here)
+library(tidyverse)
+library(paletteer)
+library(broom)
+library(vegan)
+```
+
+```{r}
+# Read in rarified species data
+dat_cl <- read.csv(here("rarified_counts_by_Class.csv"))
+
+head(dat_cl, n=5)
+```
+# Herbicide Experiment
+## Non-Herbicide
+```{r}
+class_cb_trt_NH <- dat_cl |>
+  filter(Treatment == "NH") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_NH)
+```
+
+```{r}
+classes <- class_cb_trt_NH$Class
+cl_use_NH <- class_cb_trt_NH |>
+  select(-Class)
+
+cl_filtered_NH <- cl_use_NH[, apply(cl_use_NH, 2, sd) != 0]
+
+# Compute the correlation matrix if no constant species remain
+cl_correlation_matrix_NH <- cor(t(cl_filtered_NH))
+```
+```{r}
+colnames(cl_correlation_matrix_NH) <- classes
+rownames(cl_correlation_matrix_NH) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_NH <- max(cl_correlation_matrix_NH, na.rm = TRUE)
+cl_min_corr_value_NH <- min(cl_correlation_matrix_NH, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_NH <- which(cl_correlation_matrix_NH == cl_max_corr_value_NH, arr.ind = TRUE)
+cl_min_loc_NH <- which(cl_correlation_matrix_NH == cl_min_corr_value_NH, arr.ind = TRUE)
+
+cl_max_loc_NH <- cl_max_loc_NH[cl_max_loc_NH[, 1] != cl_max_loc_NH[, 2], ]
+
+```
+
+```{r}
+cl_min_corr_value_NH
+```
+
+```{r}
+cl_NH_heatmap <- cl_correlation_matrix_NH[25:30, 25:30]
+cl_NH_heatmap[is.na(cl_NH_heatmap)] <- 0
+library(reshape2)
+
+cl_NH_heatmap_long <- melt(cl_NH_heatmap)
+
+ggplot(cl_NH_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+
+
+```
+
+## Herbicide
+```{r}
+cl_cb_trt_H <- dat_cl |>
+  filter(Treatment == "H") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(cl_cb_trt_H)
+```
+
+```{r}
+classes <- cl_cb_trt_H$Class
+cl_use_H <- cl_cb_trt_H |>
+  select(-Class)
+
+cl_filtered_H <- cl_use_H[, apply(cl_use_NH, 2, sd) != 0]
+
+cl_correlation_matrix_H <- cor(t(cl_filtered_H))
+```
+```{r}
+colnames(cl_correlation_matrix_H) <- classes
+rownames(cl_correlation_matrix_H) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_H <- max(cl_correlation_matrix_H, na.rm = TRUE)
+cl_min_corr_value_H <- min(cl_correlation_matrix_H, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_H <- which(cl_correlation_matrix_H == cl_max_corr_value_H, arr.ind = TRUE)
+cl_min_loc_H <- which(cl_correlation_matrix_H == cl_min_corr_value_H, arr.ind = TRUE)
+
+cl_max_loc_H <- cl_max_loc_H[cl_max_loc_H[, 1] != cl_max_loc_H[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_H
+```
+
+```{r}
+cl_H_heatmap <- cl_correlation_matrix_H[25:30, 25:30]
+cl_H_heatmap[is.na(cl_H_heatmap)] <- 0
+library(reshape2)
+
+cl_H_heatmap_long <- melt(cl_H_heatmap)
+
+ggplot(cl_H_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+
+
+```
+
+# Fertilizer
+## Synthetic Fertilizer
+```{r}
+class_cb_trt_SF <- dat_cl |>
+  filter(Treatment == "SF") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_SF)
+```
+
+```{r}
+classes <- class_cb_trt_SF$Class
+cl_use_SF <- class_cb_trt_SF |>
+  select(-Class)
+
+cl_filtered_SF <- cl_use_SF[, apply(cl_use_SF, 2, sd) != 0]
+
+cl_correlation_matrix_SF <- cor(t(cl_filtered_SF))
+```
+```{r}
+colnames(cl_correlation_matrix_SF) <- classes
+rownames(cl_correlation_matrix_SF) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_SF <- max(cl_correlation_matrix_SF, na.rm = TRUE)
+cl_min_corr_value_SF <- min(cl_correlation_matrix_SF, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_SF <- which(cl_correlation_matrix_SF == cl_max_corr_value_SF, arr.ind = TRUE)
+cl_min_loc_SF <- which(cl_correlation_matrix_SF == cl_min_corr_value_SF, arr.ind = TRUE)
+
+cl_max_loc_SF <- cl_max_loc_SF[cl_max_loc_SF[, 1] != cl_max_loc_SF[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_SF
+```
+
+```{r}
+cl_SF_heatmap <- cl_correlation_matrix_SF[25:30, 25:30]
+cl_SF_heatmap[is.na(cl_SF_heatmap)] <- 0
+library(reshape2)
+
+cl_SF_heatmap_long <- melt(cl_SF_heatmap)
+
+ggplot(cl_SF_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+```
+
+## Organic Fertilizer
+```{r}
+class_cb_trt_OF <- dat_cl |>
+  filter(Treatment == "OF") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_OF)
+```
+
+```{r}
+classes <- class_cb_trt_OF$Class
+cl_use_OF <- class_cb_trt_OF |>
+  select(-Class)
+
+cl_filtered_OF <- cl_use_OF[, apply(cl_use_OF, 2, sd) != 0]
+
+cl_correlation_matrix_OF <- cor(t(cl_filtered_OF))
+```
+```{r}
+colnames(cl_correlation_matrix_OF) <- classes
+rownames(cl_correlation_matrix_OF) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_OF <- max(cl_correlation_matrix_OF, na.rm = TRUE)
+cl_min_corr_value_OF <- min(cl_correlation_matrix_OF, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_OF <- which(cl_correlation_matrix_OF == cl_max_corr_value_OF, arr.ind = TRUE)
+cl_min_loc_OF <- which(cl_correlation_matrix_OF == cl_min_corr_value_OF, arr.ind = TRUE)
+
+cl_max_loc_OF <- cl_max_loc_OF[cl_max_loc_OF[, 1] != cl_max_loc_OF[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_OF
+```
+
+```{r}
+cl_OF_heatmap <- cl_correlation_matrix_OF[25:30, 25:30]
+cl_OF_heatmap[is.na(cl_OF_heatmap)] <- 0
+library(reshape2)
+
+cl_OF_heatmap_long <- melt(cl_OF_heatmap)
+
+ggplot(cl_OF_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+```
+
+## No Fertilizer
+```{r}
+class_cb_trt_NF <- dat_cl |>
+  filter(Treatment == "NF") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_NF)
+```
+
+```{r}
+classes <- class_cb_trt_NF$Class
+cl_use_NF <- class_cb_trt_NF |>
+  select(-Class)
+
+cl_filtered_NF <- cl_use_NF[, apply(cl_use_NF, 2, sd) != 0]
+
+cl_correlation_matrix_NF <- cor(t(cl_filtered_NF))
+```
+```{r}
+colnames(cl_correlation_matrix_NF) <- classes
+rownames(cl_correlation_matrix_NF) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_NF <- max(cl_correlation_matrix_NF, na.rm = TRUE)
+cl_min_corr_value_NF <- min(cl_correlation_matrix_NF, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_NF <- which(cl_correlation_matrix_NF == cl_max_corr_value_NF, arr.ind = TRUE)
+cl_min_loc_NF <- which(cl_correlation_matrix_NF == cl_min_corr_value_NF, arr.ind = TRUE)
+
+cl_max_loc_NF <- cl_max_loc_NF[cl_max_loc_NF[, 1] != cl_max_loc_NF[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_NF
+```
+
+```{r}
+cl_NF_heatmap <- cl_correlation_matrix_NF[25:30, 25:30]
+cl_NF_heatmap[is.na(cl_NF_heatmap)] <- 0
+library(reshape2)
+
+cl_NF_heatmap_long <- melt(cl_NF_heatmap)
+
+ggplot(cl_NF_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+```
+
+# Crop Cover
+## High Water Demand
+```{r}
+class_cb_trt_HW <- dat_cl |>
+  filter(Treatment == "HW") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_HW)
+```
+
+```{r}
+classes <- class_cb_trt_HW$Class
+cl_use_HW <- class_cb_trt_HW |>
+  select(-Class)
+
+cl_filtered_HW <- cl_use_HW[, apply(cl_use_HW, 2, sd) != 0]
+
+cl_correlation_matrix_HW <- cor(t(cl_filtered_HW))
+```
+```{r}
+colnames(cl_correlation_matrix_HW) <- classes
+rownames(cl_correlation_matrix_HW) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_HW <- max(cl_correlation_matrix_HW, na.rm = TRUE)
+cl_min_corr_value_HW <- min(cl_correlation_matrix_HW, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_HW <- which(cl_correlation_matrix_HW == cl_max_corr_value_HW, arr.ind = TRUE)
+cl_min_loc_HW <- which(cl_correlation_matrix_HW == cl_min_corr_value_HW, arr.ind = TRUE)
+
+cl_max_loc_HW <- cl_max_loc_HW[cl_max_loc_HW[, 1] != cl_max_loc_HW[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_HW
+```
+
+```{r}
+cl_HW_heatmap <- cl_correlation_matrix_HW[25:30, 25:30]
+cl_HW_heatmap[is.na(cl_HW_heatmap)] <- 0
+library(reshape2)
+
+cl_HW_heatmap_long <- melt(cl_HW_heatmap)
+
+ggplot(cl_HW_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+```
+
+## Low Water Demand
+```{r}
+class_cb_trt_LW <- dat_cl |>
+  filter(Treatment == "LW") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_LW)
+```
+
+```{r}
+classes <- class_cb_trt_LW$Class
+cl_use_LW <- class_cb_trt_LW |>
+  select(-Class)
+
+cl_filtered_LW <- cl_use_LW[, apply(cl_use_LW, 2, sd) != 0]
+
+cl_correlation_matrix_LW <- cor(t(cl_filtered_LW))
+```
+```{r}
+colnames(cl_correlation_matrix_LW) <- classes
+rownames(cl_correlation_matrix_LW) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_LW <- max(cl_correlation_matrix_LW, na.rm = TRUE)
+cl_min_corr_value_LW <- min(cl_correlation_matrix_LW, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_LW <- which(cl_correlation_matrix_LW == cl_max_corr_value_LW, arr.ind = TRUE)
+cl_min_loc_LW <- which(cl_correlation_matrix_LW == cl_min_corr_value_LW, arr.ind = TRUE)
+
+cl_max_loc_LW <- cl_max_loc_LW[cl_max_loc_LW[, 1] != cl_max_loc_LW[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_LW
+```
+
+```{r}
+cl_LW_heatmap <- cl_correlation_matrix_LW[25:30, 25:30]
+cl_LW_heatmap[is.na(cl_LW_heatmap)] <- 0
+library(reshape2)
+
+cl_LW_heatmap_long <- melt(cl_LW_heatmap)
+
+ggplot(cl_LW_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+```
+
+## No Crop Cover
+```{r}
+class_cb_trt_NCC <- dat_cl |>
+  filter(Treatment == "NCC") |>
+  select(Class, Sample_ID, Count) |>
+  pivot_wider(names_from = Sample_ID, values_from = Count, values_fill = 0)
+
+head(class_cb_trt_NCC)
+```
+
+```{r}
+classes <- class_cb_trt_NCC$Class
+cl_use_NCC <- class_cb_trt_NCC |>
+  select(-Class)
+
+cl_filtered_NCC <- cl_use_NCC[, apply(cl_use_NCC, 2, sd) != 0]
+
+cl_correlation_matrix_NCC <- cor(t(cl_filtered_NCC))
+```
+```{r}
+colnames(cl_correlation_matrix_NCC) <- classes
+rownames(cl_correlation_matrix_NCC) <- classes
+
+# Find the highest and lowest correlation values
+cl_max_corr_value_NCC <- max(cl_correlation_matrix_NCC, na.rm = TRUE)
+cl_min_corr_value_NCC <- min(cl_correlation_matrix_NCC, na.rm = TRUE)
+
+# Find the positions of the highest and lowest correlations
+cl_max_loc_NCC <- which(cl_correlation_matrix_NCC == cl_max_corr_value_NCC, arr.ind = TRUE)
+cl_min_loc_NCC <- which(cl_correlation_matrix_NCC == cl_min_corr_value_NCC, arr.ind = TRUE)
+
+cl_max_loc_NCC <- cl_max_loc_NCC[cl_max_loc_NCC[, 1] != cl_max_loc_NCC[, 2], ]
+```
+
+```{r}
+cl_min_corr_value_NCC
+```
+
+```{r}
+cl_NCC_heatmap <- cl_correlation_matrix_NCC[25:30, 25:30]
+cl_NCC_heatmap[is.na(cl_NCC_heatmap)] <- 0
+library(reshape2)
+
+cl_NCC_heatmap_long <- melt(cl_NCC_heatmap)
+
+ggplot(cl_NCC_heatmap_long, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 0) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 20, hjust = 0)) +
+  xlab("") + 
+  ylab("") +
+  scale_y_discrete(limits=rev) +
+  scale_x_discrete(position = "top")
+```

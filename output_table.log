@@ -1,0 +1,138 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.9.1)  20 MAR 2025 21:01
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**output_table.tex
+(./output_table.tex
+LaTeX2e <2024-06-01> patch level 2
+L3 programming layer <2024-08-16>
+(c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2024/02/08 v1.4n Standard LaTeX document class
+(c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2024/02/08 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count194
+\c@section=\count195
+\c@subsection=\count196
+\c@subsubsection=\count197
+\c@paragraph=\count198
+\c@subparagraph=\count199
+\c@figure=\count266
+\c@table=\count267
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen141
+) (c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/longtable.sty
+Package: longtable 2024-04-26 v4.20 Multi-page Table package (DPC)
+\LTleft=\skip51
+\LTright=\skip52
+\LTpre=\skip53
+\LTpost=\skip54
+\LTchunksize=\count268
+\LTcapwidth=\dimen142
+\LT@head=\box52
+\LT@firsthead=\box53
+\LT@foot=\box54
+\LT@lastfoot=\box55
+\LT@gbox=\box56
+\LT@cols=\count269
+\LT@rows=\count270
+\c@LT@tables=\count271
+\c@LT@chunks=\count272
+\LT@p@ftn=\toks17
+) (c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/tools/array.sty
+Package: array 2024/06/14 v2.6d Tabular extension package (FMi)
+\col@sep=\dimen143
+\ar@mcellbox=\box57
+\extrarowheight=\dimen144
+\NC@list=\toks18
+\extratabsurround=\skip55
+\backup@length=\skip56
+\ar@cellbox=\box58
+) (c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/l3backend/l3backend-pdftex.def
+File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count273
+\l__pdf_internal_box=\box59
+) (./output_table.aux)
+\openout1 = `output_table.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 4.
+LaTeX Font Info:    ... okay on input line 4.
+
+Overfull \hbox (80.96927pt too wide) in alignment at lines 8--12
+ [] [] [] [] 
+ []
+
+
+Overfull \hbox (80.96927pt too wide) in alignment at lines 12--17
+ [] [] [] [] 
+ []
+
+
+Overfull \hbox (12.01909pt too wide) in paragraph at lines 29--30
+\OT1/cmr/m/n/8 aliphatic[]non[]methane[]hydrocarbon[]degradation, 
+ []
+
+
+Overfull \hbox (12.01909pt too wide) in paragraph at lines 59--60
+\OT1/cmr/m/n/8 aliphatic[]non[]methane[]hydrocarbon[]degradation, 
+ []
+
+
+Overfull \hbox (12.01909pt too wide) in paragraph at lines 69--70
+\OT1/cmr/m/n/8 aliphatic[]non[]methane[]hydrocarbon[]degradation, 
+ []
+
+
+Overfull \hbox (12.01909pt too wide) in paragraph at lines 79--80
+\OT1/cmr/m/n/8 aliphatic[]non[]methane[]hydrocarbon[]degradation, 
+ []
+
+
+Overfull \hbox (12.01909pt too wide) in paragraph at lines 85--86
+\OT1/cmr/m/n/8 aliphatic[]non[]methane[]hydrocarbon[]degradation, 
+ []
+
+
+Overfull \hbox (80.96927pt too wide) in alignment at lines 17--176
+ [] [] [] [] 
+ []
+
+[1
+
+{c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2] [3] [4] [5] [6] [7] [8]
+
+[9] (./output_table.aux)
+ ***********
+LaTeX2e <2024-06-01> patch level 2
+L3 programming layer <2024-08-16>
+ ***********
+ ) 
+Here is how much of TeX's memory you used:
+ 616 strings out of 475477
+ 11195 string characters out of 5773124
+ 2032960 words of memory out of 5000000
+ 23346 multiletter control sequences out of 15000+600000
+ 559282 words of font info for 40 fonts, out of 8000000 for 9000
+ 36 hyphenation exceptions out of 8191
+ 35i,6n,50p,1721b,250s stack positions out of 10000i,1000n,20000p,200000b,200000s
+<c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb><c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb><c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb><c:/Users/Tyler/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb>
+Output written on output_table.pdf (9 pages, 74436 bytes).
+PDF statistics:
+ 54 PDF objects out of 1000 (max. 8388607)
+ 34 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+

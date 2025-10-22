@@ -1,0 +1,237 @@
+---
+title: "taxa_functions"
+format: html
+editor: source
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+library(microeco)
+library(stringr)
+regex <- prok_func_FAPROTAX[["func_tax"]]
+regex <- lapply(regex, function(taxa_regex) {
+  unlist(str_extract_all(taxa_regex, "[a-zA-Z0-9_]+"))
+})
+
+search_taxa <- function(taxa) {
+  taxa_lower <- tolower(taxa)
+  functions_with_taxa <- c()
+  for (func in names(regex)) {
+  taxa_list_lower <- tolower(regex[[func]])
+  if (taxa_lower %in% taxa_list_lower) {
+    functions_with_taxa <- c(functions_with_taxa, func)
+    }
+  }
+return(functions_with_taxa)
+}
+```
+
+```{r}
+search_taxa("actinomycetia")
+search_taxa("ignavibacteria")
+
+list(unique(c(search_taxa("actinomyces"),search_taxa("streptomyces"))))
+```
+
+```{r}
+# all_genus <- OTU_long |>
+#   distinct(Genus, .keep_all = TRUE) |>
+#   select(c(Class, Order, Family, Genus))
+
+# write to new csv b/c otu_long too large
+#write.table(all_genus, file = "all_genus.csv", sep = ",", row.names = FALSE, col.names = TRUE)
+```
+
+```{r}
+all_genus <- read.csv("all_genus.csv")
+```
+
+
+```{r}
+lower_level_search_taxa <- function(level, class) {
+  taxa_list <- all_genus |>
+    filter(Class == class) |>
+    distinct({{level}}, .keep_all = TRUE) |>
+    pull({{level}})
+  
+  functions <- c()
+  for (t in taxa_list) {
+    funcs <- search_taxa(t)
+    functions <- c(functions, funcs)
+  }
+  return(unique(functions))
+}
+```
+
+
+```{r}
+lower_level_search_taxa(Order, "actinomycetia")
+lower_level_search_taxa(Order, "ignavibacteria")
+```
+
+```{r}
+lower_level_search_taxa(Order, "bacilli")
+lower_level_search_taxa(Order, "deltaproteobacteria")
+lower_level_search_taxa(Order, "chlorobia")
+```
+
+```{r}
+lower_level_search_taxa(Family, "betaproteobacteria")
+lower_level_search_taxa(Family, "chitinophagia")
+lower_level_search_taxa(Family, "nitrospinia")
+```
+
+```{r}
+lower_level_search_taxa(Genus, "acidimicrobiia")
+lower_level_search_taxa(Genus,"thermoanaerobaculia")
+lower_level_search_taxa(Genus, "acidithiobacillia")
+```
+
+```{r}
+module_function_search <- function(module, t_level=Genus) {
+  taxa_functions <- list()
+  all_functions <- c()
+  
+  for (taxa in module) {
+    print(taxa)
+    func_list <- lower_level_search_taxa({{t_level}}, taxa)
+    if (is.null(func_list)) {
+      func_list <- NA
+    }
+    taxa_functions[[taxa]] <- func_list
+    all_functions <- c(all_functions, func_list)
+  }
+
+  function_counts <- table(all_functions)
+  
+  # Compute score
+  total_functions <- length(function_counts)
+  shared_functions <- sum(function_counts > 1)
+  score <- (shared_functions / total_functions)
+  
+  return(list(
+    functions_by_class = taxa_functions,
+    function_counts = function_counts,
+    shared_percentage = score
+  ))
+}
+```
+
+
+```{r}
+module_function_search(cluster_list$`21`)
+```
+# Module Ranking Function
+Takes as input the modules and returns ranking on function similarity
+```{r}
+module_similarity_ranking <- function(modules) {
+    module_scores <- data.frame(Module = character(), Similarity_Score = numeric())
+
+  for (i in seq_along(modules)) {
+    if (length(modules[[i]]) > 5) {
+      similarity_score <- 0
+    }
+    else {
+    result <- module_function_search(modules[[i]], Genus)
+    similarity_score <- result$shared_percentage
+    }
+    module_scores <- rbind(module_scores, data.frame(Module = i, Similarity_Score = similarity_score))
+  }
+  
+  module_scores <- module_scores[order(-module_scores$Similarity_Score), ]
+  
+  return(module_scores)
+}
+```
+
+```{r}
+rankings <- module_similarity_ranking(cluster_list)
+```
+```{r}
+ggplot(rankings |> filter(Similarity_Score > 0) |> arrange(desc(Similarity_Score)), aes(x = Similarity_Score, y = reorder(Module, Similarity_Score))) +
+  geom_bar(stat = "identity", fill = "#BAB86C") +
+  labs(x = "Similarity Score", y = "Module", title = "Module Similarity Scores") +
+  theme_minimal()
+
+```
+
+```{r}
+test <- module_function_search(cluster_list$`21`)$functions_by_class
+
+```
+
+```{r}
+latex_function_table <- function(modules) {
+  module_functions <- data.frame(Module = character(), Similarity_Score = numeric(), Class = character(), Functions = character())
+
+  for (i in seq_along(modules)) {
+    if (length(modules[[i]]) > 5) {
+      similarity_score <- 0
+      result <- module_function_search(modules[[i]], Genus)
+      }
+    else {
+    result <- module_function_search(modules[[i]], Genus)
+    similarity_score <- result$shared_percentage
+    }
+    for (cl in names(result$functions_by_class)) {
+    functions_list <- result$functions_by_class[[cl]]
+    module_functions <- rbind(module_functions, data.frame(Module = i, Similarity_Score = similarity_score, Class = cl, Functions = paste(functions_list, collapse = ", ")))
+    }
+  }
+  
+  module_functions <- module_functions[order(-module_functions$Similarity_Score), ]
+  
+latex_table <- "\\documentclass{article}\n\\usepackage{longtable}\n\\usepackage{array}\n\\begin{document}\n\n"
+  latex_table <- paste0(latex_table, "\\section*{Module Function Table}\n\n")
+  latex_table <- paste0(latex_table, "\\footnotesize")
+    latex_table <- paste0(latex_table, "\\renewcommand{\\arraystretch}{1.2}")
+  latex_table <- paste0(latex_table, "\\begin{longtable}{|l|c|l|>{\\raggedright\\arraybackslash}p{6cm}|}\n\\hline\n")
+  latex_table <- paste0(latex_table, "\\textbf{Module} & \\textbf{Similarity Score} & \\textbf{Class} & \\textbf{Functions} \\\\\n\\hline\n")
+  latex_table <- paste0(latex_table, "\\endfirsthead\n\n")
+  latex_table <- paste0(latex_table, "\\hline\n\\textbf{Module} & \\textbf{Similarity Score} & \\textbf{Class} & \\textbf{Functions} \\\\\n\\hline\n")
+  latex_table <- paste0(latex_table, "\\endhead\n\n")
+
+
+  for (row in 1:nrow(module_functions)) {
+    module <- module_functions$Module[row]
+    similarity_score <- module_functions$Similarity_Score[row]
+    class <- module_functions$Class[row]
+    functions <- module_functions$Functions[row]
+
+    # For module number and similarity score, only display them once per module
+    module_text <- ifelse(row == 1 || module != module_functions$Module[row - 1], module, "")
+    similarity_score_text <- ifelse(row == 1 || similarity_score != module_functions$Similarity_Score[row - 1], similarity_score, "")
+    
+    # Add the row to the LaTeX table with ragged right alignment to avoid stretching
+    latex_table <- paste0(latex_table, 
+                          module_text, " & ", 
+                          similarity_score_text, " & ", 
+                          class, " & ", 
+                          functions , "\\\\\n")
+    
+    # Add \cline{3-4} after each Class block
+    if (row < nrow(module_functions) && module_functions$Module[row] != module_functions$Module[row + 1]) {
+      latex_table <- paste0(latex_table, "\\hline\n")
+    } else {
+      latex_table <- paste0(latex_table, "\\cline{3-4}\n")
+    }
+  }
+
+  latex_table <- paste0(latex_table, "\\hline\n\\end{longtable}\n\n\\end{document}")
+  
+  latex_table <- gsub("\\_", "\\\\_", latex_table)
+
+  return(latex_table)
+}
+```
+
+```{r}
+latex_code <- latex_function_table(cluster_list)
+writeLines(latex_code, "output_table.tex")
+```
+
+

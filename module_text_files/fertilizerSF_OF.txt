@@ -1,0 +1,88 @@
+Fertilizer: SF-OF
+
+$`23`
+[1] "nitriliruptoria" "florideophyceae"
+
+$`9`
+[1] "sphingobacteriia" "chloroflexia"     "ktedonobacteria" 
+
+$`26`
+[1] "bacteroidetes" "aquificae"    
+
+$`31`
+[1] "tissierellia"      "methylacidiphilae"
+
+$`12`
+[1] "acidobacteriia"  "nitrospira"      "deferribacteres"
+
+$`16`
+[1] "cyanobacteria"        "candidatus brocadiae" "deinococci"           "cloacimonetes"       
+
+$`32`
+[1] "spirochaetia"  "lentisphaeria" "dictyoglomia" 
+
+$`35`
+[1] "negativicutes"  "coriobacteriia"
+
+$`17`
+[1] "firmicutes"  "thermotogae"
+
+$`27`
+[1] "thermodesulfovibrionia" "thermolithobacteria"    "chlorobia"             
+
+$`6`
+[1] "rubrobacteria"       "deltaproteobacteria"
+
+$`29`
+[1] "chthonomonadetes" "fibrobacteria"   
+
+$`5`
+[1] "thermoleophilia" "gloeobacteria"  
+
+$`4`
+[1] "betaproteobacteria" "caldisericia"      
+
+$`22`
+[1] "thermomicrobia"    "hydrogenophilalia"
+
+$`15`
+[1] "verrucomicrobiae" "mollicutes"      
+
+$`19`
+[1] "clostridia"      "endomicrobia"    "dehalococcoidia"
+
+$`24`
+[1] "oligoflexia" "chlamydiia" 
+
+$`21`
+[1] "anaerolineae"        "thermoanaerobaculia"
+
+$`10`
+[1] "spartobacteria" "thermoflexia"  
+
+$`34`
+[1] "armatimonadia"  "ardenticatenia"
+
+$`11`
+[1] "gemmatimonadetes" "ignavibacteria"  
+
+$`1`
+[1] "alphaproteobacteria"   "chitinophagia"         "acidimicrobiia"        "caldilineae"           "thermodesulfobacteria"
+
+$`33`
+[1] "synergistia"       "acidithiobacillia"
+
+$`25`
+[1] "bacteroidia"           "epsilonproteobacteria"
+
+$`3`
+[1] "bacilli"        "planctomycetia" "fimbriimonadia"
+
+$`8`
+[1] "blastocatellia"      "gammaproteobacteria" "erysipelotrichia"   
+
+$`2`
+[1] "actinomycetia"  "chrysiogenetes" "nitrospinia"   
+
+$`7`
+[1] "opitutae"   "holophagae"

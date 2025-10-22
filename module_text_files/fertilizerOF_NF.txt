@@ -1,0 +1,71 @@
+Fertilizer: OF-NF
+
+$`3`
+[1] "bacilli"                "thermomicrobia"         "thermotogae"            "bacteroidetes"          "thermodesulfovibrionia"
+[6] "armatimonadia"         
+
+$`24`
+[1] "candidatus tectomicrobia" "chrysiogenetes"          
+
+$`17`
+[1] "clostridia"   "synergistia"  "dictyoglomia"
+
+$`6`
+[1] "rubrobacteria"   "acidimicrobiia"  "ktedonobacteria" "coriobacteriia" 
+
+$`2`
+[1] "actinomycetia"  "spartobacteria" "cyanobacteria"  "nitrospira"     "oligoflexia"   
+
+$`11`
+[1] "chitinophagia"       "sphingobacteriia"    "flavobacteriia"      "thermoanaerobaculia" "gloeobacteria"       "cloacimonetes"      
+
+$`8`
+[1] "blastocatellia" "fusobacteriia" 
+
+$`20`
+[1] "fimbriimonadia" "thermoflexia"  
+
+$`12`
+[1] "gemmatimonadetes" "chloroflexia"     "ignavibacteria"   "holophagae"       "deferribacteres"  "nitrospinia"     
+
+$`29`
+[1] "epsilonproteobacteria" "lentisphaeria"        
+
+$`15`
+[1] "planctomycetia" "ardenticatenia"
+
+$`27`
+[1] "fibrobacteria" "aquificae"    
+
+$`22`
+[1] "candidatus brocadiae" "erysipelotrichia"    
+
+$`7`
+[1] "opitutae"            "thermolithobacteria" "mollicutes"         
+
+$`25`
+[1] "chthonomonadetes"      "acidithiobacillia"     "thermodesulfobacteria"
+
+$`5`
+[1] "thermoleophilia" "acidobacteriia"  "deinococci"     
+
+$`21`
+[1] "nitriliruptoria" "dehalococcoidia"
+
+$`14`
+[1] "verrucomicrobiae" "anaerolineae"    
+
+$`26`
+[1] "spirochaetia" "caldisericia"
+
+$`9`
+[1] "gammaproteobacteria" "hydrogenophilalia"  
+
+$`1`
+[1] "alphaproteobacteria" "firmicutes"          "endomicrobia"        "methylacidiphilae"  
+
+$`23`
+[1] "bacteroidia"   "chlamydiia"    "negativicutes" "chlorobia"    
+
+$`19`
+[1] "caldilineae"  "tissierellia"

@@ -1,0 +1,21 @@
+metric = diagonal sum / upper triangular sum
+
+the matrix we use is:
+[A functions, shared A-B functions, shared A-C functions]
+[shared A-B functions, B functions, shared B-C functions]
+[shared A-C functions, shared B-C functions, C functions]
+
+
+
+
+Carbon: Decomposition/Respiration.
+Nitrogen: Nitrate Reduction/Reaction functions.
+
+Scatter plot of C/N vs. Contribution to Correlation
+
+package: Corrplot for the individual treatment correlation matrices.
+ 
+In the final report, talk about how the procedure is useful for analyzing situations similar to the one that we encountered here. Rainfall pattern didn't show significance, but that doesn't mean that its useless. Even things that didn't find anything, still report it. 
+
+
+Find which functions are showing up uniquely in a module

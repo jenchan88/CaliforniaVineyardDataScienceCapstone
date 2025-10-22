@@ -1,0 +1,135 @@
+Class Modules based on Hierarchical Clustering (split at p-val = 0.1)
+
+module 1:
+alphaproteobacterial
+cytophagia
+planctomycetia
+phycisphaerae              
+saprospiria
+caldilineae                
+erysipelotrichia
+chthonomonadetes           
+tissierellia
+thermolithobacteria        
+synergistia
+fibrobacteria              
+candidatus saccharibacteria
+thermodesulfobacteria    
+lentisphaeria              
+
+module 2:
+actinomycetia
+ignavibacteria
+
+module 3:
+bacilli
+deltaproteobacteria
+chlorobia
+
+module 4:
+betaproteobacteria
+chitinophagia
+nitrospinia 
+
+module 5:
+thermoleophilia
+firmicutes
+nitriliruptoria
+
+module 6:
+rubrobacteria
+deferribacteres
+
+module 7:
+opitutae
+mollicutes
+
+module 8:
+blastocatellia
+methylacidiphilae
+
+module 9:
+gammaproteobacterial
+negativicutes
+ardenticatenia
+
+module 10:
+sphingobacteriia
+spartobacteria
+oligoflexia
+Bacteroidetes
+ktedonobacteria
+
+module 11:
+gemmatimonadetes
+flavobacteria
+bacteroidia  
+
+module 12:
+acidobacteriia
+thermoflexia
+
+module 13:
+acidimicrobiia
+thermoanaerobaculia
+acidithiobacillia
+ 
+module 14:
+verrucomicrobiae
+
+module 15:
+cyanobacteria
+
+module 16:
+chloroflexia
+thermomicrobia
+fusobacteriia
+
+module 17:
+clostridia
+aquificae
+
+module 18:
+nitrospira
+chlamydiia
+
+module 19:
+anaerolineae
+armatimonadia
+
+module 20:
+fimbriimonadia
+deinococci
+cloacimonetes
+
+module 21:
+candidatus brocadiae
+coriobacteriia
+
+module 22:
+thermotogae
+chrysiogenetes
+
+module 23:
+thermodesulfovibrionia
+florideophyceae
+
+module 24:
+candidatus tectomicrobia
+dehalococcoidia
+gloeobacteria
+
+module 25:
+endomicrobia
+holophagae
+
+module 26:
+spirochaetia
+caldisericia
+
+module 27:
+epsilonproteobacteria
+hydrogenophilalia
+
+module 28:
+dictyoglomia

@@ -1,0 +1,266 @@
+---
+title: "Differential Correlation Trends"
+format: html
+---
+```{r}
+library(tidyverse)
+```
+
+```{r}
+rainfall_month <- rainfall |>
+  select(DATE, PRCP) |>
+  mutate(year = year(DATE),
+         month = month(DATE))|>
+  group_by(year, month) |>
+  summarize(total_rain = sum(PRCP)) |>
+  mutate(season = case_when(month == 2 | month == 3 ~ "bud",
+                            month == 4 | month == 5 ~ "bloom",
+                            month == 6 | month == 7 ~ "veraison",
+                            month == 8 | month == 9 ~ "harvest")) |>
+  filter(year %in% c(2016, 2017, 2018)) |>
+  rename(Season = season, Year = year) |>
+  mutate(Season = tools::toTitleCase(Season)) |>
+  mutate(cumulative_rainfall = cumsum(total_rain)) |>
+  mutate(date = make_date(Year, month, 1))
+```
+
+```{r}
+# rainfall_month <- rainfall |>
+#   filter(year %in% c("2016", "2017", "2018")) |>
+#   mutate(date = make_date(year, month, 1)) |>
+#   mutate(cumulative_rainfall = cumsum(total_rain))
+
+ggplot(data = rainfall_month) +
+  geom_bar(aes(x = date, y = total_rain), stat = "identity") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+
+```{r}
+uivi <- corr_uv_df(dat_cl, Class, "ignavibacteria", "thermotogae", "Herbicide")
+```
+
+```{r}
+ggplot() +
+  geom_bar(data = rainfall_month, 
+           aes(x = date, y = total_rain), 
+           stat = "identity", fill = "skyblue") +
+  
+  geom_point(data = uivi, 
+             aes(x = date, y = uivi, color = Treatment), 
+             size = 2) +
+  
+  geom_line(data = uivi, 
+              aes(x = date, y = uivi, group = date), 
+              color = "gray50", linewidth = 0.5) +
+  
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Correlation Contribution plot for ignavibacteria and thermotogae", x = "Date", y = "")
+```
+
+```{r}
+ggplot() +
+  geom_bar(data = rainfall_month, 
+           aes(x = date, y = cumulative_rainfall), 
+           stat = "identity", fill = "skyblue") +
+  
+  geom_point(data = uivi, 
+             aes(x = date, y = uivi, color = Treatment), 
+             size = 2) +
+  
+  geom_line(data = uivi, 
+              aes(x = date, y = uivi, group = date), 
+              color = "gray50", linewidth = 0.5) +
+  
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Correlation Contribution plot for actinomycetia and ignavibacteria, \nCumulative Rainfall", x = "Date", y = "")
+```
+
+
+
+
+# C-N data
+```{r}
+library(readxl)
+CNdata_sheets <- excel_sheets("cndata.xlsx")
+CNdata_2016 <- read_xlsx("cndata.xlsx", sheet = "2016")
+CNdata_2017 <- read_xlsx("cndata.xlsx", sheet = "2017")
+CNdata_2018 <- read_xlsx("cndata.xlsx", sheet = "2018")
+```
+
+```{r}
+CNdata_2016 <- CNdata_2016 |>
+  mutate(Year = "2016")
+
+CNdata_2017 <- CNdata_2017 |>
+  mutate(Year = "2017")
+
+CNdata_2018 <- CNdata_2018 |>
+  mutate(Year = "2018")
+
+CNdata <- rbind(CNdata_2016, CNdata_2017, CNdata_2018)
+```
+
+```{r}
+CNdata <- CNdata |>
+  mutate(
+    Season = sub("\\s.*$", "", `Sample Name`),
+    Treatment = sub("^.*\\s", "", `Sample Name`)
+  )
+```
+
+```{r}
+CNdata_herbicide_exp <- CNdata |>
+  filter(Treatment %in% c("H","NH")) |>
+  select(Treatment, Season, Year, `%C (average)`, `%N (average)`,`C/N (average)`)
+
+CNdata_herbicide_exp
+```
+
+```{r}
+CN_overlay <- merge(uivi, CNdata_herbicide_exp)
+
+CN_overlay <- CN_overlay |>
+  select(-c(Month, date)) |>
+  mutate(Sample = paste0(Season, "_", Year)) |>
+  mutate(Sample = factor(
+    Sample,
+    levels = c("Bud_2016", "Bloom_2016", "Veraison_2016", "Harvest_2016", "Bud_2017", "Bloom_2017", "Veraison_2017", "Harvest_2017", "Bud_2018", "Bloom_2018", "Veraison_2018", "Harvest_2018"), 
+    ordered = TRUE)) |>
+  mutate(`C/N (average)` = scale(`C/N (average)`),
+         `%C (average)` = scale(`%C (average)`),
+         `%N (average)` = scale(`%N (average)`)
+         )
+```
+
+```{r}
+ggplot() +
+  geom_bar(data = CN_overlay, 
+           aes(x = Sample, y = `%C (average)`), 
+           stat = "identity", fill = "gray50") +
+  
+  geom_point(data = CN_overlay, 
+             aes(x = Sample, y = uivi, color = Treatment), 
+             size = 2) +
+  
+  geom_line(data = CN_overlay, 
+              aes(x = Sample, y = uivi, group = Sample), 
+              color = "gray50", linewidth = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+ggplot() +
+  geom_bar(data = CN_overlay, 
+           aes(x = Sample, y = `%N (average)`), 
+           stat = "identity", fill = "darkolivegreen3") +
+  
+  geom_point(data = CN_overlay, 
+             aes(x = Sample, y = uivi, color = Treatment), 
+             size = 2) +
+  
+  geom_line(data = CN_overlay, 
+              aes(x = Sample, y = uivi, group = Sample), 
+              color = "gray50", linewidth = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+```{r}
+ggplot() +
+  geom_bar(data = CN_overlay, 
+           aes(x = Sample, y = `C/N (average)`), 
+           stat = "identity", fill = "gray50") +
+  
+  geom_point(data = CN_overlay, 
+             aes(x = Sample, y = uivi, color = Treatment), 
+             size = 2) +
+  
+  geom_line(data = CN_overlay, 
+              aes(x = Sample, y = uivi, group = Sample), 
+              color = "gray50", linewidth = 0.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+# INCORRECT NOW
+rainfall_bars <- rainfall_overlay |> 
+  distinct(Sample, rain)
+
+uivi_points <- rainfall_overlay  # includes both treatments
+
+ggplot() +
+  geom_col(data = rainfall_bars, aes(x = Sample, y = rain), 
+           fill = "skyblue", alpha = 0.5) +
+  
+  geom_point(data = uivi_points, 
+             aes(x = Sample, y = uivi, color = Treatment), size = 2) +
+  
+  geom_line(data = uivi_points, aes(x = Sample, y = uivi, group = Sample), color = "gray50", linewidth = 0.5) +
+  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Contribution to Correlation Overlayed with Rainfall",
+    x = "Sample",
+    y=""
+  )
+
+```
+
+```{r}
+### INCORRECT NOW
+uivi_plot <- ggplot(rainfall_overlay, aes(x = Sample, y = uivi, color = Treatment)) +
+  geom_point(size = 2) +
+  geom_line(aes(group = Sample), color = "gray50", linewidth = 0.5) +
+  theme_minimal() +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank()) +
+  labs(
+    title = "Contribution to Correlation Plot",
+    x = NULL,
+    y = expression(u[i]*v[i])
+  )
+rainfall_plot <- ggplot(rainfall_bars, aes(x = Sample, y = rain)) +
+  geom_col(fill = "skyblue", alpha = 0.7) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(
+    title = "Rainfall",
+    x = "Sample",
+    y = "Rainfall (inches)"
+  )
+
+uivi_plot / rainfall_plot + plot_layout(heights = c(2, 1))
+```
+

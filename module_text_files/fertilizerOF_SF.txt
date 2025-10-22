@@ -1,0 +1,60 @@
+Fertilizer: OF-SF
+
+$`16`
+[1] "chloroflexia"     "chthonomonadetes"
+
+$`10`
+[1] "deltaproteobacteria"  "candidatus brocadiae" "erysipelotrichia"    
+
+$`7`
+[1] "opitutae"              "gemmatimonadetes"      "nitrospira"            "tissierellia"          "thermolithobacteria"  
+[6] "epsilonproteobacteria" "caldisericia"         
+
+$`21`
+[1] "nitriliruptoria"       "armatimonadia"         "thermodesulfobacteria"
+
+$`28`
+[1] "ardenticatenia" "dictyoglomia"  
+
+$`3`
+[1] "bacilli"       "cyanobacteria" "bacteroidetes"
+
+$`2`
+[1] "actinomycetia"       "thermotogae"         "ktedonobacteria"     "thermoanaerobaculia" "dehalococcoidia"    
+
+$`13`
+[1] "acidimicrobiia" "clostridia"     "cloacimonetes" 
+
+$`6`
+[1] "rubrobacteria"   "flavobacteriia"  "ignavibacteria"  "bacteroidia"     "deferribacteres"
+
+$`20`
+[1] "fimbriimonadia" "chlamydiia"    
+
+$`11`
+[1] "spartobacteria"         "thermomicrobia"         "thermodesulfovibrionia" "spirochaetia"           "synergistia"           
+[6] "holophagae"            
+
+$`23`
+[1] "candidatus tectomicrobia" "chrysiogenetes"          
+
+$`8`
+[1] "blastocatellia"   "chitinophagia"    "sphingobacteriia" "lentisphaeria"    "gloeobacteria"    "nitrospinia"     
+
+$`24`
+[1] "fusobacteriia" "aquificae"    
+
+$`19`
+[1] "anaerolineae"      "methylacidiphilae" "florideophyceae"  
+
+$`9`
+[1] "gammaproteobacteria" "mollicutes"          "hydrogenophilalia"   "deinococci"          "coriobacteriia"     
+
+$`1`
+[1] "alphaproteobacteria" "firmicutes"          "endomicrobia"        "thermoflexia"        "chlorobia"          
+
+$`5`
+[1] "thermoleophilia" "acidobacteriia"  "caldilineae"    
+
+$`22`
+[1] "oligoflexia"   "negativicutes"

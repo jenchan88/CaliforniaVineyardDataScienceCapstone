@@ -1,0 +1,73 @@
+Fertilizer: NF-OF
+
+$`12`
+[1] "gemmatimonadetes" "aquificae"       
+
+$`15`
+[1] "cyanobacteria" "spirochaetia"  "thermoflexia"  "deinococci"    "lentisphaeria" "cloacimonetes"
+
+$`6`
+[1] "rubrobacteria"  "acidobacteriia" "thermotogae"   
+
+$`22`
+[1] "candidatus brocadiae" "deferribacteres"      "chlorobia"           
+
+$`5`
+[1] "thermoleophilia"  "verrucomicrobiae" "endomicrobia"     "coriobacteriia"   "dictyoglomia"    
+
+$`25`
+[1] "bacteroidetes" "caldisericia" 
+
+$`4`
+[1] "betaproteobacteria" "flavobacteriia"    
+
+$`27`
+[1] "chthonomonadetes" "fibrobacteria"    "negativicutes"   
+
+$`21`
+[1] "thermomicrobia"  "florideophyceae"
+
+$`33`
+[1] "methylacidiphilae" "gloeobacteria"    
+
+$`9`
+[1] "gammaproteobacteria" "spartobacteria"      "erysipelotrichia"   
+
+$`3`
+[1] "bacilli"         "nitriliruptoria"
+
+$`26`
+[1] "thermodesulfovibrionia" "thermolithobacteria"   
+
+$`10`
+[1] "deltaproteobacteria" "sphingobacteriia"    "chloroflexia"        "ktedonobacteria"    
+
+$`14`
+[1] "planctomycetia" "fimbriimonadia"
+
+$`7`
+[1] "opitutae"            "thermoanaerobaculia"
+
+$`28`
+[1] "fusobacteriia"         "synergistia"           "epsilonproteobacteria"
+
+$`11`
+[1] "chitinophagia" "caldilineae"  
+
+$`1`
+[1] "alphaproteobacteria"      "acidimicrobiia"           "bacteroidia"              "candidatus tectomicrobia" "thermodesulfobacteria"   
+
+$`24`
+[1] "oligoflexia"       "chlamydiia"        "acidithiobacillia"
+
+$`8`
+[1] "blastocatellia" "firmicutes"    
+
+$`30`
+[1] "mollicutes" "holophagae"
+
+$`2`
+[1] "actinomycetia"  "chrysiogenetes"
+
+$`31`
+[1] "armatimonadia"   "dehalococcoidia" "nitrospinia"    

@@ -1,0 +1,64 @@
+Fertilizer: NF-SF
+
+$`4`
+[1] "betaproteobacteria" "ignavibacteria"    
+
+$`5`
+[1] "thermoleophilia" "caldilineae"    
+
+$`17`
+[1] "verrucomicrobiae" "negativicutes"   
+
+$`1`
+[1] "alphaproteobacteria" "gammaproteobacteria" "endomicrobia"        "thermoflexia"        "hydrogenophilalia"   "coriobacteriia"     
+
+$`32`
+[1] "lentisphaeria" "chlorobia"     "gloeobacteria" "nitrospinia"  
+
+$`3`
+[1] "bacilli"           "cyanobacteria"     "methylacidiphilae" "dictyoglomia"     
+
+$`18`
+[1] "firmicutes"  "oligoflexia"
+
+$`11`
+[1] "sphingobacteriia" "anaerolineae"    
+
+$`23`
+[1] "bacteroidetes"   "florideophyceae"
+
+$`10`
+[1] "chitinophagia"         "nitrospira"            "tissierellia"          "thermolithobacteria"   "epsilonproteobacteria" "caldisericia"         
+
+$`13`
+[1] "gemmatimonadetes" "planctomycetia"   "erysipelotrichia"
+
+$`9`
+[1] "deltaproteobacteria"  "chloroflexia"         "candidatus brocadiae"
+
+$`26`
+[1] "fusobacteriia" "aquificae"    
+
+$`22`
+[1] "nitriliruptoria" "armatimonadia"   "chlamydiia"     
+
+$`12`
+[1] "spartobacteria" "holophagae"    
+
+$`2`
+[1] "actinomycetia"   "thermotogae"     "dehalococcoidia"
+
+$`6`
+[1] "rubrobacteria"  "ardenticatenia"
+
+$`24`
+[1] "candidatus tectomicrobia" "ktedonobacteria"          "mollicutes"               "deinococci"               "cloacimonetes"           
+
+$`14`
+[1] "acidobacteriia" "acidimicrobiia" "clostridia"     "bacteroidia"   
+
+$`21`
+[1] "fimbriimonadia"        "thermodesulfobacteria"
+
+$`8`
+[1] "blastocatellia"         "thermomicrobia"         "thermodesulfovibrionia" "spirochaetia"           "synergistia"            "deferribacteres"       
